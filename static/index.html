@@ -26,10 +26,10 @@ h2{font-family:Georgia,serif;font-size:20px;margin:14px 0 4px}
 .phone{width:290px;height:560px;margin:10px auto;border:9px solid #1d1416;border-radius:36px;overflow:hidden;background:#000;box-shadow:0 14px 34px rgba(0,0,0,.28)}
 .phone iframe{width:390px;height:754px;border:0;transform:scale(.7);transform-origin:0 0;background:#fff}
 .tools{display:flex;gap:8px;align-items:center;margin:8px 0}
-.tools select,.tools input{flex:1;padding:10px;border:1px solid #e3c7bb;border-radius:10px;font:inherit;font-size:14px}
+.tools select,.tools input{flex:1;min-width:0;width:50%;padding:10px;border:1px solid #e3c7bb;border-radius:10px;font:inherit;font-size:14px}
 #grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;max-height:340px;overflow:auto;padding:4px}
 .tc{border-radius:12px;padding:10px 6px 8px;text-align:center;color:#fff;cursor:pointer;border:3px solid transparent;position:relative}
-.tc .m{width:38px;height:38px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:26px}
+.tc .m{width:54px;height:54px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:26px}
 .tc small{font-size:10px;line-height:1.2;display:block;opacity:.95}
 .tc.sel{border-color:#222;box-shadow:0 0 0 2px var(--gold)}
 .count{font-size:12px;color:#9a6a70}
@@ -41,7 +41,7 @@ h2{font-family:Georgia,serif;font-size:20px;margin:14px 0 4px}
 @keyframes sl{0%{margin-left:-40%}100%{margin-left:100%}}
 </style></head>
 <body>
-<header><h1>🪔 Shaadi Card</h1><p>Chat your wedding details → pick from 100 designs → share link &amp; download video</p></header>
+<header><h1>🪔 Shaadi Card</h1><p>Chat your wedding details → pick from 100 graphic designs → share link &amp; download video</p></header>
 <div class="wrap">
   <div id="chat"></div>
 
@@ -68,6 +68,7 @@ h2{font-family:Georgia,serif;font-size:20px;margin:14px 0 4px}
 </div>
 <div id="bar"><div class="in" id="in"></div></div>
 <script src="/templates.js"></script>
+<script src="/art.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 const data={groom:{},bride:{},functions:[],theme:'t1'};
@@ -118,11 +119,11 @@ function drawGrid(){
   TEMPLATES.filter(t=>(!p||t.palette===p)&&t.name.toLowerCase().includes(q)).forEach(t=>{n++;
     const d=document.createElement('div');d.className='tc'+(t.id===sel?' sel':'');d.dataset.id=t.id;
     d.style.background=`linear-gradient(150deg,${t.v['--c1']},${t.v['--c2']})`;
-    const m=document.createElement('div');m.className='m';m.style.color=t.v['--gold'];m.innerHTML=motifHTML(t);
+    const m=document.createElement('div');m.className='m';m.style.color=t.v['--gold'];m.innerHTML=`<div style="position:absolute;inset:-6px;opacity:.5">${mandala([[12,190,30],[8,120,34]],'currentColor','')}</div><span style="position:relative">${t.glyph}</span>`;m.style.position='relative';
     const s=document.createElement('small');s.textContent=t.name;d.append(m,s);d.onclick=()=>pick(t.id);g.appendChild(d)});
   $('#cnt').textContent=`${n} of ${TEMPLATES.length} designs · tap one to preview`}
 function pick(id){sel=id;data.theme=id;document.querySelectorAll('.tc').forEach(e=>e.classList.toggle('sel',e.dataset.id===id));sendPreview()}
-function sendPreview(){const w=$('#pv').contentWindow;w.postMessage({invite:JSON.parse(JSON.stringify(data))},'*')}
+function sendPreview(){if(!data.date||!data.venue)return;const w=$('#pv').contentWindow;w.postMessage({invite:JSON.parse(JSON.stringify(data))},'*')}
 addEventListener('message',e=>{if(e.data&&e.data.ready)sendPreview()});
 $('#back').onclick=()=>{location.reload()};
 $('#make').onclick=async()=>{
