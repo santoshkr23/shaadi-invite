@@ -3,7 +3,7 @@
 Chat your wedding details → pick from **100 Indian designs** (20 palettes × 5 styles, Ganesha / Om / Lotus covers) →
 get a **shareable link** → download an **MP4 video invite with music**.
 
-## Run
+## Run (Windows: just double-click run.bat)
 ```bash
 pip install -r requirements.txt
 python -m playwright install chromium   # or have Google Chrome installed
