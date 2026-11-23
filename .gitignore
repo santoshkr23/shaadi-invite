@@ -1,0 +1,7 @@
+data/*
+uploads/*
+videos/*
+!data/.gitkeep
+!uploads/.gitkeep
+!videos/.gitkeep
+__pycache__/
