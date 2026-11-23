@@ -14,6 +14,11 @@ THEME_RE = re.compile(r"^t(\d{1,3})$")
 IMG_TYPES = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
 MAX_UPLOAD = 6 * 1024 * 1024
 ID_RE = re.compile(r"^[a-z0-9-]{3,60}$")
+IMG_PATH = re.compile(r"^/uploads/[a-f0-9]{16}\.(jpg|png|webp)$")
+AUD_PATH = re.compile(r"^/uploads/[a-f0-9]{16}\.(mp3|m4a)$")
+AUD_TYPES = {"audio/mpeg": ".mp3", "audio/mp3": ".mp3", "audio/mp4": ".m4a", "audio/x-m4a": ".m4a", "audio/aac": ".m4a"}
+MAX_AUDIO = 8 * 1024 * 1024
+OWNER_WHATSAPP = re.sub(r"\D", "", os.environ.get("OWNER_WHATSAPP", ""))
 
 app = FastAPI(title="Shaadi Invite")
 jobs: dict[str, dict] = {}  # video jobs: id -> {status, error}
@@ -38,6 +43,9 @@ def clean(d: dict) -> dict:
         "closing": clip(d.get("closing"), 150),
         "rsvp": re.sub(r"[^0-9]", "", clip(d.get("rsvp"), 20)),
         "photo": clip(d.get("photo"), 200),
+        "tradition": d.get("tradition") if d.get("tradition") in ("hindu", "muslim", "sikh", "christian") else "hindu",
+        "photos": [p for p in (d.get("photos") or [])[:3] if isinstance(p, str) and IMG_PATH.match(p)],
+        "music": d.get("music") if isinstance(d.get("music"), str) and AUD_PATH.match(d.get("music")) else "",
         "theme": d.get("theme") if THEME_RE.match(str(d.get("theme"))) and 1 <= int(d["theme"][1:]) <= 100 else "t1",
         "functions": [],
     }
@@ -58,12 +66,13 @@ def clean(d: dict) -> dict:
 
 @app.post("/api/upload")
 async def upload(file: UploadFile = File(...)):
-    ext = IMG_TYPES.get(file.content_type)
+    ext = IMG_TYPES.get(file.content_type) or AUD_TYPES.get(file.content_type)
     if not ext:
-        raise HTTPException(400, "Only JPG, PNG or WebP images")
-    body = await file.read(MAX_UPLOAD + 1)
-    if len(body) > MAX_UPLOAD:
-        raise HTTPException(400, "Image too large (max 6 MB)")
+        raise HTTPException(400, "Only JPG/PNG/WebP images or MP3/M4A audio")
+    limit = MAX_AUDIO if ext in (".mp3", ".m4a") else MAX_UPLOAD
+    body = await file.read(limit + 1)
+    if len(body) > limit:
+        raise HTTPException(400, "File too large")
     name = secrets.token_hex(8) + ext
     (UPLOADS / name).write_bytes(body)
     return {"url": f"/uploads/{name}"}
@@ -95,6 +104,39 @@ def page(iid: str):
     return FileResponse(STATIC / "invite.html")
 
 
+@app.get("/v/{iid}")
+def video_page(iid: str):
+    load(iid)
+    return FileResponse(STATIC / "video.html")
+
+
+@app.get("/api/invites/{iid}/qr.png")
+def qr(iid: str, request: Request):
+    import segno, io
+    from fastapi.responses import Response
+    load(iid)
+    base = os.environ.get("PUBLIC_URL") or str(request.base_url).rstrip("/")
+    buf = io.BytesIO()
+    segno.make(f"{base}/i/{iid}", error="m").save(buf, kind="png", scale=10, border=2, dark="#2b0f18")
+    return Response(buf.getvalue(), media_type="image/png")
+
+
+@app.post("/api/invites/{iid}/enquiry")
+async def enquiry(iid: str, request: Request):
+    load(iid)
+    b = await request.json()
+    e = {"invite": iid, "name": clip(b.get("name"), 80), "phone": re.sub(r"[^0-9+]", "", clip(b.get("phone"), 20)),
+         "city": clip(b.get("city"), 60), "qty": re.sub(r"\D", "", clip(b.get("qty"), 6)), "note": clip(b.get("note"), 300)}
+    if not e["name"] or len(e["phone"]) < 8:
+        raise HTTPException(400, "name and phone required")
+    with open(DATA / "enquiries.jsonl", "a") as f:
+        f.write(json.dumps(e, ensure_ascii=False) + "\n")
+    base = os.environ.get("PUBLIC_URL") or str(request.base_url).rstrip("/")
+    msg = f"Luxury box invitation enquiry\nName: {e['name']}\nPhone: {e['phone']}\nCity: {e['city']}\nQty: {e['qty']}\nInvite: {base}/i/{iid}\n{e['note']}"
+    from urllib.parse import quote
+    return {"ok": True, "wa": f"https://wa.me/{OWNER_WHATSAPP}?text={quote(msg)}"}
+
+
 # ---------- video ----------
 def make_video(iid: str, base_url: str):
     from playwright.sync_api import sync_playwright
@@ -104,20 +146,29 @@ def make_video(iid: str, base_url: str):
         with sync_playwright() as p:
             kw = {"executable_path": shutil.which("google-chrome") or shutil.which("chromium")} if (shutil.which("google-chrome") or shutil.which("chromium")) else {}
             b = p.chromium.launch(args=["--no-sandbox"], **kw)
-            ctx = b.new_context(viewport={"width": 390, "height": 844}, device_scale_factor=1,
-                                record_video_dir=str(tmp), record_video_size={"width": 390, "height": 844})
+            ctx = b.new_context(viewport={"width": 540, "height": 960}, device_scale_factor=1,
+                                record_video_dir=str(tmp), record_video_size={"width": 540, "height": 960})
             pg = ctx.new_page()
-            pg.goto(f"{base_url}/i/{iid}?record=1", wait_until="load")
-            pg.wait_for_timeout(800)
-            pg.evaluate("runTour()")
-            pg.wait_for_timeout(1200)
+            pg.goto(f"{base_url}/v/{iid}", wait_until="load")
+            pg.wait_for_function("window.__ready === true", timeout=20000)
+            pg.wait_for_timeout(1500)
+            pg.evaluate("runVideo()", )
+            pg.wait_for_function("window.__done === true", timeout=120000)
+            pg.wait_for_timeout(500)
             ctx.close(); b.close()
         webm = next(tmp.glob("*.webm"))
+        music_path = str(STATIC / "music.mp3")
+        try:
+            m = json.loads((DATA / f"{iid}.json").read_text()).get("music")
+            if m and AUD_PATH.match(m) and (UPLOADS / Path(m).name).exists():
+                music_path = str(UPLOADS / Path(m).name)
+        except Exception:
+            pass
         dur = float(subprocess.check_output(["ffprobe", "-v", "error", "-show_entries", "format=duration",
-                                              "-of", "csv=p=0", str(webm)]).decode().strip())
-        subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", str(webm), "-stream_loop", "-1", "-i", str(STATIC / "music.mp3"),
+                                              "-of", "csv=p=0", str(webm)]).decode().strip()) - 2.0
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", "2.0", "-i", str(webm), "-stream_loop", "-1", "-i", music_path,
                         "-t", f"{dur:.2f}", "-map", "0:v", "-map", "1:a",
-                        "-vf", "scale=720:-2:flags=lanczos", "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+                        "-vf", "scale=1080:1920:flags=lanczos", "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
                         "-pix_fmt", "yuv420p", "-af", f"afade=t=out:st={max(0, dur - 2):.2f}:d=2",
                         "-c:a", "aac", "-b:a", "128k", "-movflags", "+faststart", str(out) + ".part.mp4"], check=True)
         os.replace(str(out) + ".part.mp4", out)

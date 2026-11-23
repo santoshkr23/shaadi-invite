@@ -21,3 +21,11 @@ Open http://localhost:8000
 
 Security: all user text is whitelisted/length-limited server-side and escaped on render.
 Next steps: login + payments, more templates, regional languages, Hindi/Bengali text.
+
+## Config (environment variables)
+- `OWNER_WHATSAPP` – your WhatsApp number with country code (e.g. `919876543210`). Luxury-box quote requests open WhatsApp to this number and are also saved in `data/enquiries.jsonl`.
+- `PUBLIC_URL` – your public site URL (e.g. `https://shaadicard.in`) so QR codes and share links use it.
+
+## Features
+Traditions (Hindu / Muslim / Sikh / Christian), 100 designs, photo gallery, custom music, QR code for printed cards,
+luxury-box enquiry, cinematic 1080x1920 MP4 (about 40s, with music).

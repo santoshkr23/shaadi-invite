@@ -60,9 +60,15 @@ h2{font-family:Georgia,serif;font-size:20px;margin:14px 0 4px}
     <div class="card"><b>Share link</b>
       <div class="link" style="margin-top:8px"><input id="lnk" readonly><button class="btn" id="cp">Copy</button></div>
       <div class="row"><a class="btn gold" id="wa" target="_blank" rel="noopener">Share on WhatsApp</a><a class="btn ghost" id="op" target="_blank">Open invite</a></div></div>
-    <div class="card"><b>Video invitation</b><p class="hint" style="margin:4px 0 0">An MP4 with music, ready for WhatsApp status &amp; Instagram.</p>
+    <div class="card"><b>Video invitation</b><p class="hint" style="margin:4px 0 0">A vertical 1080×1920 MP4 with music, ready for WhatsApp status &amp; Instagram.</p>
       <div class="row"><button class="btn" id="vd">Generate &amp; download video</button></div>
       <div id="vs" class="hint"></div><div class="prog hide" id="pg"><i></i></div></div>
+    <div class="card"><b>QR code for your printed card</b><p class="hint" style="margin:4px 0 8px">Print this on the card or box. Guests scan it to open your invitation.</p>
+      <div style="display:flex;gap:14px;align-items:center"><img id="qr" width="120" height="120" alt="QR"><a class="btn ghost" id="qrd" download="invite-qr.png" style="display:inline-flex;align-items:center;text-decoration:none">Download QR</a></div></div>
+    <div class="card"><b>🎁 Luxury boxed invitation</b><p class="hint" style="margin:4px 0 8px">Premium printed card in a gift box, with your video invite on a QR. Ask for a quote.</p>
+      <div class="link" style="flex-wrap:wrap"><input id="eq-n" placeholder="Your name"><input id="eq-p" placeholder="Phone / WhatsApp" inputmode="tel"></div>
+      <div class="link" style="margin-top:6px"><input id="eq-c" placeholder="City"><select id="eq-q" style="padding:10px;border:1px solid #e3c7bb;border-radius:10px"><option>50</option><option>100</option><option selected>200</option><option>300</option><option>500</option></select></div>
+      <div class="row"><button class="btn" id="eq-go">Request a quote on WhatsApp</button></div><div class="hint" id="eq-s"></div></div>
     <div class="row"><button class="btn ghost" id="again">Create another</button></div>
   </div>
 </div>
@@ -73,7 +79,8 @@ h2{font-family:Georgia,serif;font-size:20px;margin:14px 0 4px}
 const $=s=>document.querySelector(s);
 const data={groom:{},bride:{},functions:[],theme:'t1'};
 const STEPS=[
- {q:"Namaste! 🙏 Let's make your wedding invitation. What is the groom's name?",t:'text',ph:'e.g. Aarav',set:v=>data.groom.name=v,req:1},
+ {q:"Namaste! 🙏 Let's make your wedding invitation. Which tradition is the wedding?",t:'choice',opts:[['hindu','Hindu'],['muslim','Muslim (Nikah)'],['sikh','Sikh (Anand Karaj)'],['christian','Christian']],set:v=>data.tradition=v},
+ {q:"What is the groom's name?",t:'text',ph:'e.g. Aarav',set:v=>data.groom.name=v,req:1},
  {q:"Groom's parents? (father & mother)",t:'text',ph:'Rajesh Sharma & Sunita Sharma',set:v=>parents(data.groom,v),skip:1},
  {q:"And the bride's name?",t:'text',ph:'e.g. Ananya',set:v=>data.bride.name=v,req:1},
  {q:"Bride's parents? (father & mother)",t:'text',ph:'Vikram Mehta & Kavita Mehta',set:v=>parents(data.bride,v),skip:1},
@@ -85,6 +92,8 @@ const STEPS=[
  {q:"Add your functions, one per line:\nName | date | time | place | dress code\n\nExample:\nHaldi | 2027-02-10 | 15:00 | Garden Lawns | Wear yellow\nSangeet | 2027-02-11 | 19:30 | Darbar Hall | Indo-western",t:'area',set:v=>data.functions=v.split('\n').map(l=>l.split('|').map(x=>x.trim())).filter(a=>a[0]).map(a=>({name:a[0],date:a[1]||'',time:a[2]||'',place:a[3]||'',dress:a[4]||''})),skip:1},
  {q:"A short love story for 'Our Story'? (optional)",t:'area',set:v=>data.story=v,skip:1},
  {q:"Upload a couple photo? (optional)",t:'file',set:v=>data.photo=v,skip:1},
+ {q:"Add up to 3 more photos for the gallery and video? (optional)",t:'files',set:v=>data.photos=v,skip:1},
+ {q:"Add your own song for the video? MP3 or M4A, up to 8 MB. (optional; a free instrumental is used if you skip)",t:'audio',set:v=>data.music=v,skip:1},
  {q:"WhatsApp number for RSVPs, with country code? (optional)",t:'text',ph:'919876543210',set:v=>data.rsvp=v,skip:1},
  {q:"Closing line? (optional)",t:'text',ph:'With love, the Sharma & Mehta families',set:v=>data.closing=v,skip:1},
 ];
@@ -94,17 +103,22 @@ function bub(t,c){const d=document.createElement('div');d.className='b '+c;d.tex
 function ask(){
   if(i>=STEPS.length)return toDesign();
   const s=STEPS[i];bub(s.q,'bot');const box=$('#in');box.innerHTML='';
+  const next=()=>{i++;ask()};
+  if(s.t==='choice'){s.opts.forEach(([v,l])=>{const b=document.createElement('button');b.className='btn';b.textContent=l;b.style.flex='1';b.onclick=()=>{bub(l,'me');s.set(v);next()};box.appendChild(b)});return}
   let el;
-  if(s.t==='area'){el=document.createElement('textarea')}else{el=document.createElement('input');el.type=s.t==='file'?'file':s.t;if(s.t==='file')el.accept='image/jpeg,image/png,image/webp'}
+  if(s.t==='area'){el=document.createElement('textarea')}
+  else{el=document.createElement('input');const file=['file','files','audio'].includes(s.t);el.type=file?'file':s.t;
+    if(file)el.accept=s.t==='audio'?'audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a':'image/jpeg,image/png,image/webp';if(s.t==='files')el.multiple=true}
   el.placeholder=s.ph||'';box.appendChild(el);
   const send=document.createElement('button');send.className='btn';send.textContent='Send';box.appendChild(send);
-  if(s.skip){const sk=document.createElement('button');sk.className='btn ghost';sk.textContent='Skip';sk.onclick=()=>{bub('Skip','me');i++;ask()};box.appendChild(sk)}
+  if(s.skip){const sk=document.createElement('button');sk.className='btn ghost';sk.textContent='Skip';sk.onclick=()=>{bub('Skip','me');next()};box.appendChild(sk)}
+  const up=async f=>{const fd=new FormData();fd.append('file',f);const r=await fetch('/api/upload',{method:'POST',body:fd});if(!r.ok)throw 0;return (await r.json()).url};
   const go=async()=>{
-    if(s.t==='file'){const f=el.files[0];if(!f)return;send.disabled=true;
-      const fd=new FormData();fd.append('file',f);
-      try{const r=await fetch('/api/upload',{method:'POST',body:fd});const j=await r.json();if(!r.ok)throw 0;s.set(j.url);bub('📷 '+f.name,'me')}catch{bub('Upload failed, skipping photo.','bot')}
-    }else{const v=el.value.trim();if(!v&&s.req)return;if(!v)return;s.set(v);bub(v,'me')}
-    i++;ask()};
+    if(['file','files','audio'].includes(s.t)){const fs=[...el.files].slice(0,s.t==='files'?3:1);if(!fs.length)return;send.disabled=true;
+      try{const urls=[];for(const f of fs)urls.push(await up(f));s.set(s.t==='files'?urls:urls[0]);bub((s.t==='audio'?'🎵 ':'📷 ')+fs.map(f=>f.name).join(', '),'me')}
+      catch{bub('Upload failed (check type and size) — skipping.','bot')}
+    }else{const v=el.value.trim();if(!v)return;s.set(v);bub(v,'me')}
+    next()};
   send.onclick=go;if(s.t!=='area')el.onkeydown=e=>{if(e.key==='Enter')go()};el.focus&&el.focus();
 }
 // ---- design stage
@@ -132,12 +146,16 @@ $('#make').onclick=async()=>{
   if(!r.ok){alert((await r.json()).detail||'Error');$('#make').disabled=false;return}
   const j=await r.json();const url=location.origin+j.url;window.iid=j.id;
   $('#design').classList.add('hide');$('#done').classList.remove('hide');
-  $('#lnk').value=url;$('#op').href=j.url;
+  $('#lnk').value=url;$('#op').href=j.url;$('#qr').src=`/api/invites/${j.id}/qr.png`;$('#qrd').href=`/api/invites/${j.id}/qr.png`;
   $('#wa').href='https://wa.me/?text='+encodeURIComponent(`${data.groom.name} weds ${data.bride.name} 💍 You are invited! ${url}`);scrollTo(0,0)};
 $('#cp').onclick=()=>{navigator.clipboard.writeText($('#lnk').value);$('#cp').textContent='Copied ✓'};
 $('#again').onclick=()=>location.reload();
+$('#eq-go').onclick=async()=>{const b={name:$('#eq-n').value,phone:$('#eq-p').value,city:$('#eq-c').value,qty:$('#eq-q').value};
+  const r=await fetch(`/api/invites/${iid}/enquiry`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
+  if(!r.ok){$('#eq-s').textContent='Please enter your name and a valid phone number.';return}
+  const j=await r.json();$('#eq-s').textContent='Thank you! We will contact you shortly.';window.open(j.wa,'_blank')};
 $('#vd').onclick=async()=>{
-  $('#vd').disabled=true;$('#pg').classList.remove('hide');$('#vs').textContent='Recording your invitation… about 40 seconds.';
+  $('#vd').disabled=true;$('#pg').classList.remove('hide');$('#vs').textContent='Creating your video… about 1–2 minutes.';
   await fetch(`/api/invites/${iid}/video`,{method:'POST'});
   const t=setInterval(async()=>{const s=await (await fetch(`/api/invites/${iid}/video`)).json();
     if(s.status==='done'){clearInterval(t);$('#pg').classList.add('hide');$('#vs').innerHTML='';

@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Wedding Invitation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:wght@500;600&family=Great+Vibes&family=Jost:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:wght@500;600&family=Great+Vibes&family=Jost:wght@400;500&family=Amiri&family=Noto+Sans+Gurmukhi&family=Noto+Serif+Devanagari&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fbeef1;--bg2:#f6dbe3;--ink:#5a2236;--soft:#8a5a6a;--accent:#8c1d40;--gold:#c9a24b;--card:#fffafb;--c1:#9b1b47;--c2:#5e0f2b;
---f1:'Playfair Display',Georgia,serif;--f2:'Cormorant Garamond',Georgia,'Noto Serif Devanagari',serif;--f3:'Great Vibes','Snell Roundhand',cursive;--f4:'Jost',system-ui,sans-serif}
+--f1:'Playfair Display',Georgia,serif;--f2:'Cormorant Garamond',Georgia,'Noto Serif Devanagari','Amiri','Noto Sans Gurmukhi',serif;--f3:'Great Vibes','Snell Roundhand',cursive;--f4:'Jost',system-ui,sans-serif}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{scroll-behavior:auto}
 body{font-family:var(--f2);background:linear-gradient(180deg,var(--bg),var(--bg2));color:var(--ink);overflow-x:hidden;min-height:100vh}
@@ -93,6 +93,7 @@ body.dark .foil{background-image:linear-gradient(110deg,#e4c370 15%,#fff8d9 38%,
 .fc .dc{font-size:13px;border:1px dashed color-mix(in srgb,var(--gold) 70%,transparent);border-radius:12px;padding:8px 12px;display:inline-block}
 .fc .dc i{font-family:var(--f4);font-style:normal;font-size:8px;letter-spacing:.2em;color:var(--soft);display:block}
 .dots{display:flex;gap:6px;margin-top:6px}.dots i{width:6px;height:6px;border-radius:3px;background:var(--soft);opacity:.35;transition:all .3s}.dots i.on{width:20px;background:var(--accent);opacity:1}
+.gph{height:56vh;max-height:460px;background-size:cover;background-position:center;border:3px solid var(--gold)}
 .story{max-width:330px;font-size:20px;line-height:1.55;font-style:italic}
 .map{width:min(84vw,330px);height:170px;border-radius:18px;border:1px solid var(--gold);background:linear-gradient(115deg,transparent 46%,rgba(255,255,255,.7) 47% 50%,transparent 51%),linear-gradient(30deg,transparent 60%,rgba(255,255,255,.6) 61% 63%,transparent 64%),radial-gradient(ellipse at 30% 70%,rgba(120,170,200,.35) 0 22%,transparent 23%),var(--bg2);position:relative;margin-bottom:18px}
 .map:after{content:"📍";position:absolute;left:62%;top:34%;font-size:34px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.3))}
@@ -113,55 +114,18 @@ body.dark .foil{background-image:linear-gradient(110deg,#e4c370 15%,#fff8d9 38%,
 <div id="toast"></div><button id="music" title="Music">🎵</button><audio id="aud" src="/music.mp3" loop preload="none"></audio>
 <script src="/templates.js"></script>
 <script src="/art.js"></script>
+<script src="/deco.js"></script>
 <script>
 const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const q=new URLSearchParams(location.search);
 const REC=q.has('record');
 if(REC)document.body.classList.add('rec');
-const PAL=[['#f6b100','#e8590c'],['#8e2de2','#d63384'],['#b0123f','#5e0f2b'],['#1c7c54','#6dbb6d'],['#1971c2','#74c0fc'],['#d6336c','#fcc2d7']];
-const EMOJI=[[/haldi/i,'🌼'],[/mehe?ndi/i,'🌿'],[/sangeet/i,'🎶'],[/baraat|pheras|phera|wedding|vivaah/i,'🔥'],[/reception/i,'🥂'],[/pooja|puja|path/i,'🪔'],[/engage|ring/i,'💍'],[/cocktail|party/i,'🍸']];
-const emoji=n=>(EMOJI.find(([r])=>r.test(n))||[0,'✨'])[1];
-const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DOW=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 let D=null;
 
-function petals(theme){
-  const w=$('#petals');w.innerHTML='';
-  for(let i=0;i<16;i++){const p=document.createElement('div');p.className='petal';p.textContent=theme;
-    p.style.left=Math.random()*100+'%';p.style.fontSize=(10+Math.random()*12)+'px';
-    p.style.setProperty('--dx',(Math.random()*120-60)+'px');
-    p.style.animationDuration=(9+Math.random()*9)+'s';p.style.animationDelay=(-Math.random()*14)+'s';w.appendChild(p);}
-}
-function fmtDate(iso,t){const [y,m,d]=iso.split('-').map(Number);const dt=new Date(y,m-1,d);return{y,m:MON[m-1],d,dow:DOW[dt.getDay()],dt,t}}
-function time12(t){if(!t)return'';const [h,m]=t.split(':').map(Number);return `${(h%12)||12}:${String(m).padStart(2,'0')} ${h<12?'am':'pm'}`}
 
-
-function tileURL(sk,gold){const g=encodeURIComponent(gold);const wrap=(w,inner)=>`url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${w}'>${inner}</svg>")`;
-  const dots=wrap(28,`<circle cx='14' cy='14' r='1.5' fill='${g}' fill-opacity='.45'/>`);
-  const jaali=wrap(40,`<path d='M20 2 L38 20 L20 38 L2 20Z M20 10 L30 20 L20 30 L10 20Z' fill='none' stroke='${g}' stroke-opacity='.35' stroke-width='1'/>`);
-  const floral=wrap(56,`<g fill='${g}' fill-opacity='.3'><circle cx='28' cy='14' r='4'/><circle cx='28' cy='42' r='4'/><circle cx='14' cy='28' r='4'/><circle cx='42' cy='28' r='4'/></g><circle cx='28' cy='28' r='2.5' fill='${g}' fill-opacity='.5'/>`);
-  const pais=wrap(70,`<path d='M18 50 C20 28 44 22 50 38 C54 50 40 60 30 56 C22 52 28 42 36 46' fill='none' stroke='${g}' stroke-opacity='.4' stroke-width='1.2'/><circle cx='42' cy='38' r='2' fill='${g}' fill-opacity='.4'/>`);
-  return {royal:jaali,toran:dots,mandala:floral,paisley:pais,lotus:'',diya:'',temple:jaali,rangoli:dots,peacock:floral,minimal:''}[sk]||''}
-const HA=(st,inner,cls='')=>`<div class="hart ${cls}" style="${st}">${inner}</div>`;
-function heroArt(sk){
-  const R=[];
-  switch(sk){
-  case 'royal':R.push(HA('inset:2% 4% 2% 4%;opacity:.95',jharokha()),HA('left:6%;bottom:3%;width:52px',diya()),HA('right:6%;bottom:3%;width:52px',diya()));break;
-  case 'toran':R.push(HA('left:0;right:0;top:0;opacity:.98',garland()),HA('left:4%;bottom:3%;width:52px',diya()),HA('right:4%;bottom:3%;width:52px',diya()));break;
-  case 'mandala':R.push(HA('left:50%;top:44%;width:min(150vw,820px);margin:calc(min(150vw,820px)/-2) 0 0 calc(min(150vw,820px)/-2);opacity:.38',MANDALA_BIG()));break;
-  case 'paisley':R.push(HA('left:-4px;top:-4px;width:min(48vw,210px);opacity:.95',paisleyCorner()),HA('right:-4px;top:-4px;width:min(48vw,210px);transform:scaleX(-1)',paisleyCorner()),HA('left:-4px;bottom:-4px;width:min(48vw,210px);transform:scaleY(-1)',paisleyCorner()),HA('right:-4px;bottom:-4px;width:min(48vw,210px);transform:scale(-1,-1)',paisleyCorner()));break;
-  case 'lotus':R.push(HA('left:-10px;bottom:-4px;width:130px',lotus()),HA('left:90px;bottom:-14px;width:96px;opacity:.85',lotus()),HA('right:-10px;bottom:-4px;width:130px;transform:scaleX(-1)',lotus()),HA('right:90px;bottom:-14px;width:96px;opacity:.85',lotus()),HA('right:-60px;top:-60px;width:220px;opacity:.35',MANDALA_SM()),HA('left:-60px;top:-60px;width:220px;opacity:.35',MANDALA_SM()));break;
-  case 'diya':R.push(stars(34),HA('left:6%;bottom:5%;width:54px',diya()),HA('left:calc(50% - 36px);bottom:2%;width:72px',diya()),HA('right:6%;bottom:5%;width:54px',diya()),HA('left:50%;top:40%;width:min(130vw,700px);margin:calc(min(130vw,700px)/-2) 0 0 calc(min(130vw,700px)/-2);opacity:.18',MANDALA_BIG()));break;
-  case 'temple':R.push(HA('left:50%;bottom:0;width:min(86vw,400px);margin-left:calc(min(86vw,400px)/-2);opacity:.55',gopuram()),HA('left:-30px;top:6%;width:40%;opacity:.25',MANDALA_SM()),HA('right:-30px;top:6%;width:40%;opacity:.25',MANDALA_SM()));break;
-  case 'rangoli':R.push(HA('left:50%;bottom:-36vw;width:min(110vw,600px);margin-left:calc(min(110vw,600px)/-2);opacity:.45',mandala([[28,190,18,1],[20,150,24,1],[14,110,26],[10,70,22]],'var(--accent)')),HA('right:-70px;top:-70px;width:230px;opacity:.4',MANDALA_SM()));break;
-  case 'peacock':R.push(HA('left:-14px;top:12%;width:92px;transform:rotate(14deg)',peacock()),HA('right:-14px;top:12%;width:92px;transform:scaleX(-1) rotate(14deg)',peacock()),HA('left:-6px;bottom:4%;width:78px;transform:rotate(-8deg)',peacock()),HA('right:-6px;bottom:4%;width:78px;transform:scaleX(-1) rotate(-8deg)',peacock()));break;
-  default:R.push(HA('inset:14px;border:1.5px solid var(--gold)',''),HA('inset:22px;border:.8px solid var(--gold);opacity:.7',''),['top:8px;left:8px','top:8px;right:8px','bottom:8px;left:8px','bottom:8px;right:8px'].map(p=>HA(p+';font-size:22px;line-height:1','❖')).join(''))}
-  return R.join('')}
-function coverHTML(){return `<div class="cmand">${MANDALA_BIG()}</div><div class="book"><div class="bm">${MANDALA_SM()}</div><div class="sh">॥ श्री गणेशाय नमः ॥</div><div class="gan">${ganesha()}</div><div class="t">Shubh Vivaah</div><div class="s">A WEDDING INVITATION</div><div class="shine"></div></div><div class="tap">TAP THE BOOK TO OPEN</div>`}
 
 function render(d){
-  D=d;document.body.className=(REC?'rec ':'')+'locked';const T=getTemplate(d.theme);applyTemplate(T);$('#cover').innerHTML=coverHTML();const tl=tileURL(T.sk,T.v['--gold']);$('#bg').innerHTML=`<div class="glow1"></div><div class="glow2"></div><div class="tile" style="${tl?'background-image:'+tl.replace(/"/g,'&quot;'):''}"></div>`;
+  D=d;$('#aud').src=d.music||'/music.mp3';document.body.className=(REC?'rec ':'')+'locked';const T=getTemplate(d.theme);applyTemplate(T);$('#cover').innerHTML=coverHTML(d);const tl=tileURL(T.sk,T.v['--gold']);$('#bg').innerHTML=`<div class="glow1"></div><div class="glow2"></div><div class="tile" style="${tl?'background-image:'+tl.replace(/"/g,'&quot;'):''}"></div>`;
   const g=esc(d.groom.name),b=esc(d.bride.name);
   document.title=`${d.groom.name} weds ${d.bride.name}`;
   const wd=fmtDate(d.date,d.time);
@@ -173,8 +137,8 @@ function render(d){
     return `<div class="fc" style="--g1:${a};--g2:${c}"><div class="top"><div class="fm spin">${MANDALA_SM()}</div><div class="em">${emoji(f.name)}</div><div class="when">${when}</div></div><div class="bot"><h3>${esc(f.name)}</h3><div class="pl">${esc(f.place)}</div>${f.dress?`<div class="dc"><i>DRESS CODE</i>${esc(f.dress)}</div>`:''}</div></div>`}).join('');
   $('#main').innerHTML=`
   <section class="hero">${heroArt(T.sk)}<div class="hero-in reveal">
-    <div class="halo"><div class="m spin">${MANDALA_SM()}</div><div class="gan">${ganesha()}</div></div>
-    <div class="sh">॥ श्री गणेशाय नमः ॥</div>
+    <div class="halo"><div class="m spin">${MANDALA_SM()}</div><div class="gan">${trad(d).motif()}</div></div>
+    <div class="sh">${trad(d).head}</div>
     ${d.photo?`<div class="photo" style="background-image:url('${esc(d.photo)}')"></div>`:''}
     <div class="eyebrow">Together with their families</div>
     <div class="names foil">${g}<span class="amp">&amp;</span>${b}</div>
@@ -191,6 +155,7 @@ function render(d){
   ${d.functions.length?`<section style="padding-left:0;padding-right:0"><div class="eyebrow">Swipe through the celebrations</div><h2 class="foil">Wedding Festivities</h2>${divider()}
     <div class="rail" id="rail">${fns}</div><div class="dots" id="dots">${d.functions.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>
     <div class="eyebrow" style="margin-top:14px">‹ Swipe to see every function ›</div></section>`:''}
+  ${(d.photos||[]).length?`<section style="padding-left:0;padding-right:0"><div class="eyebrow">Moments</div><h2 class="foil">Our Gallery</h2>${divider()}<div class="rail" id="gal">${d.photos.map(p=>`<div class="fc gph" style="background-image:url('${esc(p)}')"></div>`).join('')}</div></section>`:''}
   ${d.story?`<section><div class="eyebrow">Moments</div><h2 class="foil">Our Story</h2>${divider()}<p class="story">${esc(d.story)}</p></section>`:''}
   <section><div class="eyebrow">Location</div><h2 class="foil">How to Reach</h2>${divider()}<div class="map"></div>
     <div class="vn">${esc(d.venue)}</div><div class="ad">${esc(d.address)}</div>

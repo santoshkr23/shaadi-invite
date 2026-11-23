@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=540,initial-scale=1">
+<title>Invitation video</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:wght@500;600&family=Great+Vibes&family=Jost:wght@400;500&family=Amiri&family=Noto+Sans+Gurmukhi&family=Noto+Serif+Devanagari&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fbeef1;--bg2:#f6dbe3;--ink:#5a2236;--soft:#8a5a6a;--accent:#8c1d40;--gold:#c9a24b;--card:#fffafb;--c1:#9b1b47;--c2:#5e0f2b;
+--f1:'Playfair Display',Georgia,serif;--f2:'Cormorant Garamond',Georgia,'Noto Serif Devanagari','Amiri','Noto Sans Gurmukhi',serif;--f3:'Great Vibes','Snell Roundhand',cursive;--f4:'Jost',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:540px;height:960px;overflow:hidden;background:#000}
+#stage{position:relative;width:540px;height:960px;overflow:hidden;font-family:var(--f2);color:var(--ink);background:linear-gradient(180deg,var(--bg),var(--bg2))}
+#bg,#art,#petals{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#bg .glow1{position:absolute;width:140%;aspect-ratio:1;left:-20%;top:-20%;background:radial-gradient(circle,color-mix(in srgb,var(--gold) 30%,transparent),transparent 62%)}
+#bg .glow2{position:absolute;width:120%;aspect-ratio:1;right:-40%;bottom:-30%;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 22%,transparent),transparent 62%)}
+#bg .tile{position:absolute;inset:0;opacity:.5}
+.hart{position:absolute;pointer-events:none;color:var(--gold)}
+.spin{animation:spin 60s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.sway{animation:sway 6s ease-in-out infinite;transform-origin:50% 0}@keyframes sway{50%{transform:rotate(1deg)}}
+.flame{transform-origin:35px 36px;animation:flick 1s ease-in-out infinite alternate}.glow{animation:gl 2s ease-in-out infinite alternate}
+@keyframes flick{from{transform:scale(1,1)}to{transform:scale(.88,1.1)}}@keyframes gl{from{opacity:.55}to{opacity:1}}
+.stars{position:absolute;inset:0}.stars i{position:absolute;color:var(--gold);font-style:normal;animation:tw 3s ease-in-out infinite}@keyframes tw{50%{opacity:.15;transform:scale(.6)}}
+.petal{position:absolute;top:-30px;opacity:.85;animation:fall linear infinite}@keyframes fall{to{transform:translate3d(var(--dx),1020px,0) rotate(540deg)}}
+.foil{background:linear-gradient(110deg,var(--accent) 5%,var(--gold) 30%,var(--accent) 52%,var(--gold) 75%,var(--accent) 95%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 4s linear infinite}
+body.dark .foil{background-image:linear-gradient(110deg,#e4c370 15%,#fff8d9 38%,#e4c370 60%,#c79a3a 85%)}
+@keyframes shine{to{background-position:-220% 0}}
+/* scenes */
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:70px 44px;opacity:0;transition:opacity .7s ease;z-index:3}
+.scene.in{opacity:1}
+.scene>*{opacity:0}.scene.in>*{animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards}
+.scene.in>*:nth-child(1){animation-delay:.05s}.scene.in>*:nth-child(2){animation-delay:.35s}.scene.in>*:nth-child(3){animation-delay:.65s}.scene.in>*:nth-child(4){animation-delay:.95s}.scene.in>*:nth-child(5){animation-delay:1.25s}.scene.in>*:nth-child(6){animation-delay:1.5s}.scene.in>*:nth-child(7){animation-delay:1.75s}
+@keyframes rise{from{opacity:0;transform:translateY(34px) scale(.97)}to{opacity:1;transform:none}}
+.eyebrow{font-family:var(--f4);font-size:15px;letter-spacing:.34em;text-transform:uppercase;color:var(--soft);max-width:92%}
+.head{font-size:26px;color:var(--accent);margin:6px 0}
+.gan{width:300px;filter:drop-shadow(0 12px 18px rgba(0,0,0,.28))}
+.halo{position:relative;width:420px;height:420px;display:flex;align-items:center;justify-content:center}.halo .m{position:absolute;inset:0;color:var(--gold);opacity:.55}
+.title{font-family:var(--f1);font-style:italic;font-size:46px;letter-spacing:.12em;text-transform:uppercase;margin-top:8px}
+.names{font-family:var(--f3);font-size:104px;line-height:1.02;margin:10px 0}
+.amp{font-family:var(--f1);font-size:34px;display:block;letter-spacing:.2em;margin:4px 0}
+.par{font-size:24px;color:var(--soft);line-height:1.4}.inv{font-style:italic;font-size:30px;margin-top:30px;line-height:1.4}
+.photo{width:260px;height:330px;border-radius:140px 140px 18px 18px;background-size:cover;background-position:center;border:3px solid var(--gold);box-shadow:0 18px 40px rgba(0,0,0,.3);margin-bottom:20px;animation:kb 12s ease-in-out forwards}
+.dow{font-family:var(--f4);font-size:20px;letter-spacing:.4em;text-transform:uppercase;color:var(--soft)}
+.day{font-family:var(--f1);font-size:230px;line-height:1}.mon{font-family:var(--f3);font-size:84px}
+.yr{font-family:var(--f4);letter-spacing:.4em;font-size:22px;color:var(--soft)}.at{font-size:28px;color:var(--soft);margin-top:18px}
+.ring{position:absolute;inset:60px;border:2px solid var(--gold);border-radius:240px 240px 24px 24px;z-index:-1;opacity:.8}
+.fscene{color:#fff;background:linear-gradient(165deg,var(--g1),var(--g2));z-index:4}
+.fscene .fm{position:absolute;width:900px;left:50%;top:50%;margin:-450px 0 0 -450px;color:#fff;opacity:.16;z-index:-1}
+.fscene .em{font-size:150px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.7);box-shadow:0 0 0 18px rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;margin-bottom:34px}
+.fscene h3{font-family:var(--f1);font-weight:500;font-size:68px;margin-bottom:10px}
+.fscene .w{font-family:var(--f4);font-size:20px;letter-spacing:.3em;text-transform:uppercase}
+.fscene .pl{font-size:32px;margin:14px 0}
+.fscene .dc{border:2px dashed rgba(255,255,255,.8);border-radius:20px;padding:12px 22px;font-size:28px;margin-top:10px}.fscene .dc i{display:block;font-family:var(--f4);font-style:normal;font-size:13px;letter-spacing:.3em;opacity:.85}
+.gscene{z-index:4;padding:0;background:#000}
+.gscene .gp{position:absolute;inset:0;background-size:cover;background-position:center;animation:kb 6s ease-out forwards}
+.gscene .gv{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 30%,transparent 65%,rgba(0,0,0,.6))}
+.gscene .cap{position:absolute;bottom:90px;left:0;right:0;font-family:var(--f3);font-size:70px;color:#fff;text-shadow:0 3px 16px rgba(0,0,0,.6)}
+.gscene>*{opacity:1!important}.gscene .cap{animation:rise 1s .6s both}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.14)}}
+.vn{font-family:var(--f1);font-size:54px;margin:16px 0 10px}.ad{font-size:28px;color:var(--soft);max-width:420px;line-height:1.4}
+.pin{font-size:120px;animation:bounce 1.2s ease-in-out infinite}@keyframes bounce{50%{transform:translateY(-22px)}}
+.mapc{width:420px;height:230px;border-radius:26px;border:2px solid var(--gold);background:linear-gradient(115deg,transparent 46%,rgba(255,255,255,.7) 47% 50%,transparent 51%),linear-gradient(30deg,transparent 60%,rgba(255,255,255,.6) 61% 63%,transparent 64%),radial-gradient(ellipse at 30% 70%,rgba(120,170,200,.35) 0 22%,transparent 23%),var(--bg2);display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative;overflow:hidden}
+.close{font-family:var(--f3);font-size:80px;line-height:1.15}
+.dim{position:absolute;inset:0;z-index:0}
+</style></head>
+<body>
+<div id="stage"><div id="bg"></div><div id="art"></div><div id="petals"></div><div id="scenes"></div></div>
+<script src="/templates.js"></script><script src="/art.js"></script><script src="/deco.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let DATA=null;
+function scene(cls,html){const d=document.createElement('div');d.className='scene '+cls;d.innerHTML=html;$('#scenes').appendChild(d);return d}
+async function play(el,ms){await sleep(50);el.classList.add('in');await sleep(ms);el.classList.remove('in');setTimeout(()=>el.remove(),1000)}
+async function runVideo(){
+  const d=DATA,T=getTemplate(d.theme),tr=trad(d);
+  document.body.className=T.dark?'dark':'';applyTemplate(T);
+  const tl=tileURL(T.sk,T.v['--gold']);
+  $('#bg').innerHTML=`<div class="glow1"></div><div class="glow2"></div><div class="tile" style="${tl?'background-image:'+tl.replace(/"/g,'&quot;'):''}"></div>`;
+  $('#art').innerHTML=heroArt(T.sk);petals(T.glyph);
+  const g=esc(d.groom.name),b=esc(d.bride.name),wd=fmtDate(d.date,d.time);
+  const par=p=>[p.father&&('Mr. '+esc(p.father)),p.mother&&('Mrs. '+esc(p.mother))].filter(Boolean).join(' & ');
+  await sleep(700);
+  // 1 intro
+  await play(scene('',`<div class="halo"><div class="m spin">${MANDALA_SM()}</div><div class="gan">${tr.motif()}</div></div><div class="head">${tr.head}</div><div class="title foil">${tr.title}</div><div class="eyebrow" style="margin-top:14px">A wedding invitation</div>`),4200);
+  // 2 names
+  const gp=par(d.groom),bp=par(d.bride);
+  await play(scene('',`${d.photo?`<div class="photo" style="background-image:url('${esc(d.photo)}')"></div>`:''}<div class="eyebrow">Together with their families</div><div class="names foil">${g}<span class="amp">&amp;</span>${b}</div>${gp?`<div class="par">son of ${gp}</div>`:''}${bp?`<div class="par">daughter of ${bp}</div>`:''}<div class="inv">request the pleasure of your<br>company at their wedding</div>`),6400);
+  // 3 date
+  await play(scene('',`<div class="ring"></div><div class="eyebrow">Save the date</div><div class="dow">${wd.dow}</div><div class="day foil">${wd.d}</div><div class="mon foil">${wd.m}</div><div class="yr">${wd.y}</div><div class="at">${time12(d.time)}${d.venue?' · '+esc(d.venue):''}</div>`),4600);
+  // 4 functions
+  for(let i=0;i<d.functions.length&&i<5;i++){const f=d.functions[i];const [a,c]=PAL[i%PAL.length];let when='';
+    const m=(f.date||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);if(m)when=`${DOW[new Date(+m[1],+m[2]-1,+m[3]).getDay()].slice(0,3)} · ${+m[3]} ${MON[+m[2]-1].slice(0,3)}`;else if(f.date)when=esc(f.date);
+    if(f.time)when+=(when?' · ':'')+(/^\d{2}:\d{2}$/.test(f.time)?time12(f.time):esc(f.time));
+    const e=scene('fscene',`<div class="fm spin">${MANDALA_SM()}</div><div class="em">${emoji(f.name)}</div><h3>${esc(f.name)}</h3><div class="w">${when}</div><div class="pl">${esc(f.place)}</div>${f.dress?`<div class="dc"><i>DRESS CODE</i>${esc(f.dress)}</div>`:''}`);
+    e.style.setProperty('--g1',a);e.style.setProperty('--g2',c);await play(e,3800)}
+  // gallery
+  for(const p of (d.photos||[]).slice(0,3)){const e=scene('gscene',`<div class="gp" style="background-image:url('${esc(p)}')"></div><div class="gv"></div><div class="cap">${g} &amp; ${b}</div>`);await play(e,3200)}
+  // venue
+  await play(scene('',`<div class="eyebrow">Venue</div><div class="mapc"><div class="pin">📍</div></div><div class="vn foil">${esc(d.venue)}</div><div class="ad">${esc(d.address)}</div>`),4200);
+  // closing
+  await play(scene('',`<div class="gan" style="width:210px">${tr.motif()}</div><div class="eyebrow" style="margin-top:20px">We await your gracious presence</div><div class="close foil">${esc(d.closing||`With love, ${d.groom.name} & ${d.bride.name}`)}</div>`),5200);
+  window.__done=true}
+window.runVideo=runVideo;
+(async()=>{const id=location.pathname.split('/').pop();DATA=await (await fetch('/api/invites/'+id)).json();window.__ready=true})();
+</script></body></html>
