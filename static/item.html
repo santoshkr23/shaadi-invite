@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Shaadi Card</title><meta name="description" content="">
+<link rel="stylesheet" href="/store.css"></head><body>
+<div class="ann hide" id="ann"></div>
+<nav class="top"><a class="logo" href="/" id="logo">🪔 Shaadi Card</a><span class="sp"></span><a class="l" href="/">← All designs</a></nav>
+<div class="wrap"><div class="det" id="det"><p class="empty">Loading…</p></div></div>
+<footer><div id="fname">Shaadi Card</div></footer>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const slug=location.pathname.split('/').pop(),isVid=u=>/\.(mp4|webm)$/i.test(u||'');
+const TR={hindu:'Hindu',muslim:'Muslim',sikh:'Sikh',christian:'Christian'};
+(async()=>{const [m,r]=await Promise.all([fetch('/api/meta').then(r=>r.json()),fetch('/api/items/'+encodeURIComponent(slug))]);
+ const s=m.settings;$('#logo').textContent='🪔 '+(s.site_name||'Shaadi Card');
+ if(!r.ok){$('#det').innerHTML='<p class="empty">This design is not available. <a href="/">See all designs</a></p>';return}
+ const it=await r.json();document.title=it.title+' · '+(s.site_name||'Shaadi Card');document.querySelector('meta[name=description]').content=(it.description||it.title).slice(0,155);
+ const off=it.mrp>it.price&&it.price>0?Math.round((1-it.price/it.mrp)*100):0;
+ const media=it.preview_video?`<video src="${esc(it.preview_video)}" autoplay muted loop playsinline controls poster="${esc(it.thumb)}"></video>`:it.thumb?(isVid(it.thumb)?`<video src="${esc(it.thumb)}" autoplay muted loop playsinline></video>`:`<img src="${esc(it.thumb)}" alt="${esc(it.title)}">`):'';
+ const isCard=it.kind==='card';
+ $('#det').innerHTML=`<div class="big">${media}</div><div><div class="tags"><span>${esc(TR[it.tradition]||'')}</span>${it.languages.map(l=>`<span>${esc(l)}</span>`).join('')}${it.style?`<span>${esc(it.style)}</span>`:''}</div>
+ <h1>${esc(it.title)}</h1>${isCard?'':`<div class="p">₹${it.price}${off?` <s>₹${it.mrp}</s> <small style="font-size:15px;color:#14673a">${off}% off</small>`:''}</div>`}
+ <p style="color:#4a2a35;white-space:pre-line">${esc(it.description)}</p>
+ ${isCard?`<ul>${it.moq?`<li>Minimum order: ${it.moq} cards</li>`:''}${it.material?`<li>${esc(it.material)}</li>`:''}<li>Free video invitation with your order</li><li>QR code printed on the card</li></ul>
+  <div class="box"><b>Ask for a quote</b><input id="n" placeholder="Your name"><input id="p" placeholder="WhatsApp number" inputmode="tel"><input id="c" placeholder="City"><input id="q" placeholder="How many cards? e.g. 200"><button class="btn" id="go" style="margin-top:12px;width:100%">Request quote on WhatsApp</button><div id="ms" class="hint" style="margin-top:8px;color:#7d6470"></div></div>`
+ :`<ul><li>Vertical 1080×1920 MP4, ready for WhatsApp and Instagram</li><li>Shareable invitation link with RSVP, map and countdown</li><li>Your photos, your music (or free instrumental)</li><li>All events: Haldi, Mehndi, Sangeet, wedding</li></ul>
+  <a class="btn" style="font-size:17px;padding:14px 34px" href="/create.html?item=${esc(it.slug)}">Customize this design →</a><p style="font-size:13px;color:#7d6470;margin-top:10px">You only pay when you want the video. The invite link is free to create.</p>`}</div>`;
+ if(isCard)$('#go').onclick=async()=>{const r=await fetch('/api/enquiry',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({item:it.slug,name:$('#n').value,phone:$('#p').value,city:$('#c').value,qty:$('#q').value})});const j=await r.json();
+  if(!r.ok){$('#ms').textContent=j.detail||'Please check your details';return}$('#ms').textContent='Thank you! We will contact you shortly.';window.open(j.wa,'_blank')}})();
+</script></body></html>

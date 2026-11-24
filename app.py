@@ -4,9 +4,10 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, UploadFile, File
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+import db, shop
 
 BASE = Path(__file__).parent
-DATA, UPLOADS, VIDEOS, STATIC = (BASE / d for d in ("data", "uploads", "videos", "static"))
+DATA, UPLOADS, VIDEOS, STATIC, PACKS = (BASE / d for d in ("data", "uploads", "videos", "static", "packs"))
 for d in (DATA, UPLOADS, VIDEOS):
     d.mkdir(exist_ok=True)
 
@@ -22,6 +23,8 @@ OWNER_WHATSAPP = re.sub(r"\D", "", os.environ.get("OWNER_WHATSAPP", ""))
 
 app = FastAPI(title="Shaadi Invite")
 jobs: dict[str, dict] = {}  # video jobs: id -> {status, error}
+video_lock = threading.Semaphore(int(os.environ.get("VIDEO_WORKERS", "1")))  # one render at a time on a small VPS
+CHROME = os.environ.get("CHROME_PATH") or shutil.which("google-chrome") or shutil.which("chromium")
 
 
 def clip(v, n=300):
@@ -43,12 +46,17 @@ def clean(d: dict) -> dict:
         "closing": clip(d.get("closing"), 150),
         "rsvp": re.sub(r"[^0-9]", "", clip(d.get("rsvp"), 20)),
         "photo": clip(d.get("photo"), 200),
+        "vpack": d.get("vpack") if isinstance(d.get("vpack"), str) and re.match(r"^[a-z0-9-]{1,30}$", d.get("vpack")) and (PACKS / d.get("vpack") / "pack.json").exists() else "",
+        "item": d.get("item") if isinstance(d.get("item"), str) and re.match(r"^[a-z0-9-]{2,41}$", d.get("item")) and db.q("SELECT 1 FROM items WHERE slug=?", (d.get("item"),), one=True) else "",
         "tradition": d.get("tradition") if d.get("tradition") in ("hindu", "muslim", "sikh", "christian") else "hindu",
         "photos": [p for p in (d.get("photos") or [])[:3] if isinstance(p, str) and IMG_PATH.match(p)],
         "music": d.get("music") if isinstance(d.get("music"), str) and AUD_PATH.match(d.get("music")) else "",
         "theme": d.get("theme") if THEME_RE.match(str(d.get("theme"))) and 1 <= int(d["theme"][1:]) <= 100 else "t1",
         "functions": [],
     }
+    if out["item"]:
+        it = db.q("SELECT theme,vpack FROM items WHERE slug=?", (out["item"],), one=True)
+        out["theme"], out["vpack"] = it["theme"], (it["vpack"] if it["vpack"] and (PACKS / it["vpack"] / "pack.json").exists() else "")
     if not re.match(r"^\d{4}-\d{2}-\d{2}$", out["date"]):
         raise HTTPException(400, "date must be YYYY-MM-DD")
     if not re.match(r"^\d{2}:\d{2}$", out["time"]):
@@ -104,6 +112,16 @@ def page(iid: str):
     return FileResponse(STATIC / "invite.html")
 
 
+@app.get("/t/{slug}")
+def template_page(slug: str):
+    return FileResponse(STATIC / "item.html")
+
+
+@app.get("/admin")
+def admin_page():
+    return FileResponse(STATIC / "admin.html")
+
+
 @app.get("/v/{iid}")
 def video_page(iid: str):
     load(iid)
@@ -139,12 +157,17 @@ async def enquiry(iid: str, request: Request):
 
 # ---------- video ----------
 def make_video(iid: str, base_url: str):
+    with video_lock:
+        _make_video(iid, base_url)
+
+
+def _make_video(iid: str, base_url: str):
     from playwright.sync_api import sync_playwright
     out = VIDEOS / f"{iid}.mp4"
     tmp = Path(tempfile.mkdtemp())
     try:
         with sync_playwright() as p:
-            kw = {"executable_path": shutil.which("google-chrome") or shutil.which("chromium")} if (shutil.which("google-chrome") or shutil.which("chromium")) else {}
+            kw = {"executable_path": CHROME} if CHROME else {}
             b = p.chromium.launch(args=["--no-sandbox"], **kw)
             ctx = b.new_context(viewport={"width": 540, "height": 960}, device_scale_factor=1,
                                 record_video_dir=str(tmp), record_video_size={"width": 540, "height": 960})
@@ -182,11 +205,13 @@ def make_video(iid: str, base_url: str):
 @app.post("/api/invites/{iid}/video")
 def start_video(iid: str, request: Request):
     load(iid)
+    if not shop.is_paid(iid):
+        raise HTTPException(402, "Payment required to create the video")
     if (VIDEOS / f"{iid}.mp4").exists():
         return {"status": "done"}
     if jobs.get(iid, {}).get("status") != "working":
         jobs[iid] = {"status": "working"}
-        base = f"http://127.0.0.1:{request.url.port or 80}"
+        base = f"http://127.0.0.1:{os.environ.get('PORT', '8000')}"
         threading.Thread(target=make_video, args=(iid, base), daemon=True).start()
     return {"status": "working"}
 
@@ -202,10 +227,21 @@ def video_status(iid: str):
 @app.get("/api/invites/{iid}/video/file")
 def video_file(iid: str):
     load(iid)
+    if not shop.is_paid(iid):
+        raise HTTPException(402, "Payment required to download the video")
     f = VIDEOS / f"{iid}.mp4"
     if not f.exists():
         raise HTTPException(404)
     return FileResponse(f, media_type="video/mp4", filename=f"{iid}.mp4")
+
+
+app.include_router(shop.router)
+shop.configure(data=DATA, uploads=UPLOADS, packs=PACKS, videos=VIDEOS, load=load)
+
+
+@app.get("/healthz")
+def healthz():
+    return {"ok": True}
 
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS), name="uploads")

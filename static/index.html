@@ -1,165 +1,43 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Shaadi Card – Create your wedding invitation</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{--rose:#8c1d40;--gold:#c9a24b;--bg:#fff7f3}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:#3a1a24;min-height:100vh}
-header{padding:18px 20px;text-align:center;background:linear-gradient(135deg,#9b1b47,#5e0f2b);color:#f6e2b0}
-header h1{font-size:22px;font-family:Georgia,serif;letter-spacing:.04em}header p{font-size:12px;opacity:.85;margin-top:4px}
-.wrap{max-width:560px;margin:0 auto;padding:14px}
-.hide{display:none!important}
-#chat{display:flex;flex-direction:column;gap:10px;padding:8px 0 90px}
-.b{max-width:84%;padding:11px 14px;border-radius:16px;font-size:15px;line-height:1.4;white-space:pre-wrap;word-break:break-word}
-.bot{background:#fff;border:1px solid #f0d9cf;align-self:flex-start;border-bottom-left-radius:4px}
-.me{background:var(--rose);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
-.hint{font-size:12px;color:#9a6a70;margin-top:4px}
-#bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #efd5cb;padding:10px;display:flex;gap:8px;justify-content:center}
-#bar .in{display:flex;gap:8px;width:100%;max-width:560px}
-#bar input,#bar textarea{flex:1;border:1px solid #e3c7bb;border-radius:12px;padding:11px 12px;font:inherit;font-size:15px;min-width:0}
-#bar textarea{height:84px;resize:none}
-button{font:inherit;cursor:pointer}
-.btn{border:0;border-radius:12px;padding:0 16px;background:var(--rose);color:#fff;font-weight:600;min-height:44px}
-.btn.ghost{background:#f6e6df;color:var(--rose)}
-.btn.gold{background:var(--gold);color:#3a2a05}
-h2{font-family:Georgia,serif;font-size:20px;margin:14px 0 4px}
-.phone{width:290px;height:560px;margin:10px auto;border:9px solid #1d1416;border-radius:36px;overflow:hidden;background:#000;box-shadow:0 14px 34px rgba(0,0,0,.28)}
-.phone iframe{width:390px;height:754px;border:0;transform:scale(.7);transform-origin:0 0;background:#fff}
-.tools{display:flex;gap:8px;align-items:center;margin:8px 0}
-.tools select,.tools input{flex:1;min-width:0;width:50%;padding:10px;border:1px solid #e3c7bb;border-radius:10px;font:inherit;font-size:14px}
-#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:10px;max-height:340px;overflow:auto;padding:4px}
-.tc{border-radius:12px;padding:10px 6px 8px;text-align:center;color:#fff;cursor:pointer;border:3px solid transparent;position:relative}
-.tc .m{width:54px;height:54px;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:26px}
-.tc small{font-size:10px;line-height:1.2;display:block;opacity:.95}
-.tc.sel{border-color:#222;box-shadow:0 0 0 2px var(--gold)}
-.count{font-size:12px;color:#9a6a70}
-.card{background:#fff;border:1px solid #efd5cb;border-radius:16px;padding:16px;margin:12px 0}
-.link{display:flex;gap:6px}.link input{flex:1;padding:11px;border:1px solid #e3c7bb;border-radius:10px;font:inherit;font-size:14px;min-width:0}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.row .btn,.row a.btn{display:inline-flex;align-items:center;text-decoration:none;padding:0 14px}
-.prog{height:6px;background:#f3e1da;border-radius:3px;overflow:hidden;margin-top:10px}.prog i{display:block;height:100%;width:40%;background:var(--rose);animation:sl 1.2s infinite}
-@keyframes sl{0%{margin-left:-40%}100%{margin-left:100%}}
-</style></head>
-<body>
-<header><h1>🪔 Shaadi Card</h1><p>Chat your wedding details → pick from 100 graphic designs → share link &amp; download video</p></header>
-<div class="wrap">
-  <div id="chat"></div>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wedding Video Invitation Maker · Indian Wedding Cards Online | Shaadi Card</title>
+<meta name="description" content="Create beautiful Indian wedding video invitations in minutes. Hindu, Muslim, Sikh and Christian designs, multi-event invites, WhatsApp-ready video, shareable link and luxury boxed cards.">
+<link rel="stylesheet" href="/store.css"></head><body>
+<div class="ann" id="ann"></div>
+<nav class="top"><a class="logo" href="/" id="logo">🪔 Shaadi Card</a><span class="sp"></span><a class="l" href="#browse">Designs</a><a class="l" href="#how">How it works</a><a class="l" href="#luxury">Luxury cards</a><a class="btn" href="#browse">Browse designs</a></nav>
+<section class="hero"><h1>Wedding <em>video invitations</em> your guests will remember</h1>
+<p>Pick a design, enter your details, and get a stunning vertical video invitation and shareable link in minutes. Made for Indian weddings.</p>
+<a class="btn gold" href="#browse">Choose your design</a>
+<div class="pts"><span>✓ Hindu · Muslim · Sikh · Christian</span><span>✓ Multi-event: Haldi, Mehndi, Sangeet</span><span>✓ Your photos &amp; your music</span><span>✓ WhatsApp-ready 1080×1920 video</span></div></section>
+<div class="wrap" id="browse">
+ <div class="tabs" id="tabs"></div>
+ <div class="chips" id="chips"></div>
+ <div class="filters"><input id="q" placeholder="Search designs…"><select id="lang"><option value="">All languages</option></select><select id="style"><option value="">All styles</option></select>
+  <select id="sort"><option value="popular">Popular</option><option value="new">Newest</option><option value="price_asc">Price: low to high</option><option value="price_desc">Price: high to low</option></select></div>
+ <div class="grid" id="grid"></div><div class="empty hide" id="empty">No designs match. Try clearing the filters.</div>
 
-  <div id="design" class="hide">
-    <h2>Choose your design</h2>
-    <div class="count" id="cnt"></div>
-    <div class="phone"><iframe id="pv" src="/invite.html?preview=1"></iframe></div>
-    <p class="hint" style="text-align:center">Tap the book in the preview to open it ↑</p>
-    <div class="tools"><select id="pal"></select><input id="srch" placeholder="Search (e.g. marigold)"></div>
-    <div id="grid"></div>
-    <div class="row"><button class="btn ghost" id="back">← Edit details</button><button class="btn" id="make" style="flex:1">Create my invitation →</button></div>
-  </div>
-
-  <div id="done" class="hide">
-    <h2>🎉 Your invitation is ready</h2>
-    <div class="card"><b>Share link</b>
-      <div class="link" style="margin-top:8px"><input id="lnk" readonly><button class="btn" id="cp">Copy</button></div>
-      <div class="row"><a class="btn gold" id="wa" target="_blank" rel="noopener">Share on WhatsApp</a><a class="btn ghost" id="op" target="_blank">Open invite</a></div></div>
-    <div class="card"><b>Video invitation</b><p class="hint" style="margin:4px 0 0">A vertical 1080×1920 MP4 with music, ready for WhatsApp status &amp; Instagram.</p>
-      <div class="row"><button class="btn" id="vd">Generate &amp; download video</button></div>
-      <div id="vs" class="hint"></div><div class="prog hide" id="pg"><i></i></div></div>
-    <div class="card"><b>QR code for your printed card</b><p class="hint" style="margin:4px 0 8px">Print this on the card or box. Guests scan it to open your invitation.</p>
-      <div style="display:flex;gap:14px;align-items:center"><img id="qr" width="120" height="120" alt="QR"><a class="btn ghost" id="qrd" download="invite-qr.png" style="display:inline-flex;align-items:center;text-decoration:none">Download QR</a></div></div>
-    <div class="card"><b>🎁 Luxury boxed invitation</b><p class="hint" style="margin:4px 0 8px">Premium printed card in a gift box, with your video invite on a QR. Ask for a quote.</p>
-      <div class="link" style="flex-wrap:wrap"><input id="eq-n" placeholder="Your name"><input id="eq-p" placeholder="Phone / WhatsApp" inputmode="tel"></div>
-      <div class="link" style="margin-top:6px"><input id="eq-c" placeholder="City"><select id="eq-q" style="padding:10px;border:1px solid #e3c7bb;border-radius:10px"><option>50</option><option>100</option><option selected>200</option><option>300</option><option>500</option></select></div>
-      <div class="row"><button class="btn" id="eq-go">Request a quote on WhatsApp</button></div><div class="hint" id="eq-s"></div></div>
-    <div class="row"><button class="btn ghost" id="again">Create another</button></div>
-  </div>
+ <h2 class="sec" id="how">How it works</h2>
+ <div class="steps"><div><span>1</span><br><b>Pick a design</b><p>Browse videos by tradition, language and style.</p></div><div><span>2</span><br><b>Answer a few questions</b><p>Names, families, events, venue, photos and music.</p></div><div><span>3</span><br><b>Pay securely</b><p>UPI or card. No watermark, no hidden fees.</p></div><div><span>4</span><br><b>Download &amp; share</b><p>MP4 video, invite link and QR code, ready for WhatsApp.</p></div></div>
+ <div class="why" id="luxury"><div><b>🎁 Luxury boxed cards</b>Premium printed cards in velvet gift boxes, with your video invitation on a QR. Ask for a quote on the luxury card page.</div><div><b>📱 Made for WhatsApp</b>Vertical video that fits status and stories, plus a link guests can open with RSVP and directions.</div><div><b>✨ Every event covered</b>Haldi, Mehndi, Sangeet, wedding and reception, each with its own scene.</div></div>
 </div>
-<div id="bar"><div class="in" id="in"></div></div>
-<script src="/templates.js"></script>
-<script src="/art.js"></script>
+<footer><div id="fname">Shaadi Card</div><div style="margin-top:6px"><a id="fwa" href="#" target="_blank">Chat with us on WhatsApp</a></div></footer>
 <script>
-const $=s=>document.querySelector(s);
-const data={groom:{},bride:{},functions:[],theme:'t1'};
-const STEPS=[
- {q:"Namaste! 🙏 Let's make your wedding invitation. Which tradition is the wedding?",t:'choice',opts:[['hindu','Hindu'],['muslim','Muslim (Nikah)'],['sikh','Sikh (Anand Karaj)'],['christian','Christian']],set:v=>data.tradition=v},
- {q:"What is the groom's name?",t:'text',ph:'e.g. Aarav',set:v=>data.groom.name=v,req:1},
- {q:"Groom's parents? (father & mother)",t:'text',ph:'Rajesh Sharma & Sunita Sharma',set:v=>parents(data.groom,v),skip:1},
- {q:"And the bride's name?",t:'text',ph:'e.g. Ananya',set:v=>data.bride.name=v,req:1},
- {q:"Bride's parents? (father & mother)",t:'text',ph:'Vikram Mehta & Kavita Mehta',set:v=>parents(data.bride,v),skip:1},
- {q:"Main wedding date?",t:'date',set:v=>data.date=v,req:1},
- {q:"Wedding / Pheras time?",t:'time',set:v=>data.time=v,req:1},
- {q:"Venue name?",t:'text',ph:'e.g. Raj Vilas Palace',set:v=>data.venue=v,req:1},
- {q:"Full venue address?",t:'text',ph:'Amer Road, Jaipur 302002',set:v=>data.address=v,req:1},
- {q:"Google Maps link of the venue? (optional)",t:'text',ph:'https://maps.app.goo.gl/…',set:v=>data.maps=v,skip:1},
- {q:"Add your functions, one per line:\nName | date | time | place | dress code\n\nExample:\nHaldi | 2027-02-10 | 15:00 | Garden Lawns | Wear yellow\nSangeet | 2027-02-11 | 19:30 | Darbar Hall | Indo-western",t:'area',set:v=>data.functions=v.split('\n').map(l=>l.split('|').map(x=>x.trim())).filter(a=>a[0]).map(a=>({name:a[0],date:a[1]||'',time:a[2]||'',place:a[3]||'',dress:a[4]||''})),skip:1},
- {q:"A short love story for 'Our Story'? (optional)",t:'area',set:v=>data.story=v,skip:1},
- {q:"Upload a couple photo? (optional)",t:'file',set:v=>data.photo=v,skip:1},
- {q:"Add up to 3 more photos for the gallery and video? (optional)",t:'files',set:v=>data.photos=v,skip:1},
- {q:"Add your own song for the video? MP3 or M4A, up to 8 MB. (optional; a free instrumental is used if you skip)",t:'audio',set:v=>data.music=v,skip:1},
- {q:"WhatsApp number for RSVPs, with country code? (optional)",t:'text',ph:'919876543210',set:v=>data.rsvp=v,skip:1},
- {q:"Closing line? (optional)",t:'text',ph:'With love, the Sharma & Mehta families',set:v=>data.closing=v,skip:1},
-];
-function parents(o,v){const [f,m]=v.split(/\s*(?:&|\band\b)\s*/i);o.father=f||'';o.mother=m||''}
-let i=0;
-function bub(t,c){const d=document.createElement('div');d.className='b '+c;d.textContent=t;$('#chat').appendChild(d);scrollTo(0,document.body.scrollHeight)}
-function ask(){
-  if(i>=STEPS.length)return toDesign();
-  const s=STEPS[i];bub(s.q,'bot');const box=$('#in');box.innerHTML='';
-  const next=()=>{i++;ask()};
-  if(s.t==='choice'){s.opts.forEach(([v,l])=>{const b=document.createElement('button');b.className='btn';b.textContent=l;b.style.flex='1';b.onclick=()=>{bub(l,'me');s.set(v);next()};box.appendChild(b)});return}
-  let el;
-  if(s.t==='area'){el=document.createElement('textarea')}
-  else{el=document.createElement('input');const file=['file','files','audio'].includes(s.t);el.type=file?'file':s.t;
-    if(file)el.accept=s.t==='audio'?'audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a':'image/jpeg,image/png,image/webp';if(s.t==='files')el.multiple=true}
-  el.placeholder=s.ph||'';box.appendChild(el);
-  const send=document.createElement('button');send.className='btn';send.textContent='Send';box.appendChild(send);
-  if(s.skip){const sk=document.createElement('button');sk.className='btn ghost';sk.textContent='Skip';sk.onclick=()=>{bub('Skip','me');next()};box.appendChild(sk)}
-  const up=async f=>{const fd=new FormData();fd.append('file',f);const r=await fetch('/api/upload',{method:'POST',body:fd});if(!r.ok)throw 0;return (await r.json()).url};
-  const go=async()=>{
-    if(['file','files','audio'].includes(s.t)){const fs=[...el.files].slice(0,s.t==='files'?3:1);if(!fs.length)return;send.disabled=true;
-      try{const urls=[];for(const f of fs)urls.push(await up(f));s.set(s.t==='files'?urls:urls[0]);bub((s.t==='audio'?'🎵 ':'📷 ')+fs.map(f=>f.name).join(', '),'me')}
-      catch{bub('Upload failed (check type and size) — skipping.','bot')}
-    }else{const v=el.value.trim();if(!v)return;s.set(v);bub(v,'me')}
-    next()};
-  send.onclick=go;if(s.t!=='area')el.onkeydown=e=>{if(e.key==='Enter')go()};el.focus&&el.focus();
-}
-// ---- design stage
-let sel='t1';
-function toDesign(){$('#chat').classList.add('hide');$('#bar').classList.add('hide');$('#design').classList.remove('hide');buildGrid();pick('t1');scrollTo(0,0)}
-function buildGrid(){
-  const ps=[...new Set(TEMPLATES.map(t=>t.palette))];
-  $('#pal').innerHTML='<option value="">All 100 designs</option>'+ps.map(p=>`<option>${p}</option>`).join('');
-  $('#pal').onchange=$('#srch').oninput=drawGrid;drawGrid()}
-function drawGrid(){
-  const p=$('#pal').value,q=$('#srch').value.toLowerCase();const g=$('#grid');g.innerHTML='';let n=0;
-  TEMPLATES.filter(t=>(!p||t.palette===p)&&t.name.toLowerCase().includes(q)).forEach(t=>{n++;
-    const d=document.createElement('div');d.className='tc'+(t.id===sel?' sel':'');d.dataset.id=t.id;
-    d.style.background=`linear-gradient(150deg,${t.v['--c1']},${t.v['--c2']})`;
-    const m=document.createElement('div');m.className='m';m.style.color=t.v['--gold'];m.innerHTML=`<div style="position:absolute;inset:-6px;opacity:.5">${mandala([[12,190,30],[8,120,34]],'currentColor','')}</div><span style="position:relative">${t.glyph}</span>`;m.style.position='relative';
-    const s=document.createElement('small');s.textContent=t.name;d.append(m,s);d.onclick=()=>pick(t.id);g.appendChild(d)});
-  $('#cnt').textContent=`${n} of ${TEMPLATES.length} designs · tap one to preview`}
-function pick(id){sel=id;data.theme=id;document.querySelectorAll('.tc').forEach(e=>e.classList.toggle('sel',e.dataset.id===id));sendPreview()}
-function sendPreview(){if(!data.date||!data.venue)return;const w=$('#pv').contentWindow;w.postMessage({invite:JSON.parse(JSON.stringify(data))},'*')}
-addEventListener('message',e=>{if(e.data&&e.data.ready)sendPreview()});
-$('#back').onclick=()=>{location.reload()};
-$('#make').onclick=async()=>{
-  $('#make').disabled=true;
-  const r=await fetch('/api/invites',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
-  if(!r.ok){alert((await r.json()).detail||'Error');$('#make').disabled=false;return}
-  const j=await r.json();const url=location.origin+j.url;window.iid=j.id;
-  $('#design').classList.add('hide');$('#done').classList.remove('hide');
-  $('#lnk').value=url;$('#op').href=j.url;$('#qr').src=`/api/invites/${j.id}/qr.png`;$('#qrd').href=`/api/invites/${j.id}/qr.png`;
-  $('#wa').href='https://wa.me/?text='+encodeURIComponent(`${data.groom.name} weds ${data.bride.name} 💍 You are invited! ${url}`);scrollTo(0,0)};
-$('#cp').onclick=()=>{navigator.clipboard.writeText($('#lnk').value);$('#cp').textContent='Copied ✓'};
-$('#again').onclick=()=>location.reload();
-$('#eq-go').onclick=async()=>{const b={name:$('#eq-n').value,phone:$('#eq-p').value,city:$('#eq-c').value,qty:$('#eq-q').value};
-  const r=await fetch(`/api/invites/${iid}/enquiry`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});
-  if(!r.ok){$('#eq-s').textContent='Please enter your name and a valid phone number.';return}
-  const j=await r.json();$('#eq-s').textContent='Thank you! We will contact you shortly.';window.open(j.wa,'_blank')};
-$('#vd').onclick=async()=>{
-  $('#vd').disabled=true;$('#pg').classList.remove('hide');$('#vs').textContent='Creating your video… about 1–2 minutes.';
-  await fetch(`/api/invites/${iid}/video`,{method:'POST'});
-  const t=setInterval(async()=>{const s=await (await fetch(`/api/invites/${iid}/video`)).json();
-    if(s.status==='done'){clearInterval(t);$('#pg').classList.add('hide');$('#vs').innerHTML='';
-      const a=document.createElement('a');a.className='btn gold';a.href=s.url;a.textContent='⬇ Download MP4';a.style.display='inline-flex';$('#vs').appendChild(a);$('#vd').disabled=false}
-    else if(s.status==='error'){clearInterval(t);$('#pg').classList.add('hide');$('#vs').textContent='Video failed: '+(s.error||'');$('#vd').disabled=false}},2500)};
-ask();
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const KIND={'':'All designs',video:'Video invitations',website:'Wedding websites',card:'Luxury cards'},TRAD={'':'All traditions',hindu:'Hindu',muslim:'Muslim',sikh:'Sikh',christian:'Christian'};
+const st={kind:'',tradition:''};let M=null;
+const isVid=u=>/\.(mp4|webm)$/i.test(u||'');
+function card(it){const off=it.mrp>it.price&&it.price>0?Math.round((1-it.price/it.mrp)*100):0;
+ const prev=it.preview_video?`<video src="${esc(it.preview_video)}" muted loop playsinline preload="none"></video>`:'';
+ return `<a class="card" href="/t/${esc(it.slug)}" ${it.preview_video?'onmouseenter="this.querySelector(\'video\').play()" onmouseleave="this.querySelector(\'video\').pause()"':''}>
+ <div class="pv">${it.thumb?(isVid(it.thumb)?`<video src="${esc(it.thumb)}" muted playsinline preload="metadata"></video>`:`<img loading="lazy" src="${esc(it.thumb)}" alt="${esc(it.title)}">`):''}${prev}${it.badge?`<span class="badge">${esc(it.badge)}</span>`:''}</div>
+ <div class="in"><h3>${esc(it.title)}</h3><div class="meta">${esc(TRAD[it.tradition]||'')} · ${esc(it.languages.join(', '))}</div>
+ <div class="price">${it.kind==='card'?'Ask for quote':`₹${it.price}${off?` <s>₹${it.mrp}</s><small>${off}% off</small>`:''}`}</div></div></a>`}
+async function load(){const p=new URLSearchParams({kind:st.kind,tradition:st.tradition,language:$('#lang').value,style:$('#style').value,q:$('#q').value,sort:$('#sort').value});
+ const r=await (await fetch('/api/items?'+p)).json();$('#grid').innerHTML=r.map(card).join('');$('#empty').classList.toggle('hide',!!r.length)}
+function bar(){$('#tabs').innerHTML=Object.entries(KIND).filter(([k])=>!k||M.kinds.includes(k)).map(([k,l])=>`<button class="${st.kind===k?'on':''}" data-k="${k}">${l}</button>`).join('');
+ $('#chips').innerHTML=Object.entries(TRAD).filter(([k])=>!k||M.traditions.includes(k)).map(([k,l])=>`<button class="${st.tradition===k?'on':''}" data-t="${k}">${l}</button>`).join('');
+ document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{st.kind=b.dataset.k;bar();load()});document.querySelectorAll('#chips button').forEach(b=>b.onclick=()=>{st.tradition=b.dataset.t;bar();load()})}
+(async()=>{M=await (await fetch('/api/meta')).json();const s=M.settings;$('#ann').textContent=s.announcement||'';$('#ann').classList.toggle('hide',!s.announcement);
+ $('#logo').textContent='🪔 '+(s.site_name||'Shaadi Card');$('#fname').textContent='© '+new Date().getFullYear()+' '+(s.site_name||'Shaadi Card');$('#fwa').href=s.whatsapp?'https://wa.me/'+s.whatsapp:'#';if(!s.whatsapp)$('#fwa').classList.add('hide');
+ $('#lang').innerHTML+=M.languages.map(l=>`<option>${esc(l)}</option>`).join('');$('#style').innerHTML+=M.styles.map(l=>`<option>${esc(l)}</option>`).join('');
+ ['lang','style','sort'].forEach(i=>$('#'+i).onchange=load);let t;$('#q').oninput=()=>{clearTimeout(t);t=setTimeout(load,250)};bar();load()})();
 </script></body></html>

@@ -1,0 +1,19 @@
+[Unit]
+Description=Shaadi Card (FastAPI)
+After=network.target
+
+[Service]
+User=shaadi
+Group=shaadi
+WorkingDirectory=/opt/shaadi
+EnvironmentFile=/opt/shaadi/.env
+ExecStart=/opt/shaadi/venv/bin/uvicorn app:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=always
+RestartSec=3
+# renders use headless Chrome; keep it from starving the box
+MemoryMax=5G
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

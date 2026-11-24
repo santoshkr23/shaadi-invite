@@ -59,6 +59,28 @@ body.dark .foil{background-image:linear-gradient(110deg,#e4c370 15%,#fff8d9 38%,
 .mapc{width:420px;height:230px;border-radius:26px;border:2px solid var(--gold);background:linear-gradient(115deg,transparent 46%,rgba(255,255,255,.7) 47% 50%,transparent 51%),linear-gradient(30deg,transparent 60%,rgba(255,255,255,.6) 61% 63%,transparent 64%),radial-gradient(ellipse at 30% 70%,rgba(120,170,200,.35) 0 22%,transparent 23%),var(--bg2);display:flex;align-items:center;justify-content:center;margin-bottom:10px;position:relative;overflow:hidden}
 .close{font-family:var(--f3);font-size:80px;line-height:1.15}
 .dim{position:absolute;inset:0;z-index:0}
+/* artwork-pack mode */
+.pscene{position:absolute;inset:0;opacity:0;transition:opacity .8s ease;z-index:3;overflow:hidden;background:#000}
+.pscene.in{opacity:1}
+.pimg{position:absolute;inset:-6%;background-size:cover;background-position:center;animation:kbA 7s ease-out forwards}
+.pscene.alt .pimg{animation-name:kbB}
+@keyframes kbA{from{transform:scale(1) translateY(0)}to{transform:scale(1.14) translateY(-2%)}}
+@keyframes kbB{from{transform:scale(1.14) translateX(2%)}to{transform:scale(1) translateX(0)}}
+.pvig{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.28),transparent 28%,transparent 55%,rgba(0,0,0,.55))}
+.pspark{position:absolute;inset:0}.pspark i{position:absolute;font-style:normal;color:#ffe9a6;animation:tw 2.4s ease-in-out infinite;text-shadow:0 0 10px #ffd25a}
+.shlok{position:absolute;top:70px;left:0;right:0;text-align:center;font-family:var(--f2);font-size:92px;line-height:1.1;color:#ffd978;text-shadow:0 0 22px rgba(255,190,60,.9),0 4px 10px rgba(0,0,0,.45);opacity:0;animation:glowin 1.6s .3s forwards,pulseg 3s 2s ease-in-out infinite}
+@keyframes glowin{from{opacity:0;filter:blur(14px);transform:scale(.9)}to{opacity:1;filter:blur(0);transform:none}}@keyframes pulseg{50%{text-shadow:0 0 38px rgba(255,200,80,1),0 4px 10px rgba(0,0,0,.45)}}
+.pbot{position:absolute;left:0;right:0;bottom:90px;text-align:center;color:#fff;text-shadow:0 3px 16px rgba(0,0,0,.65);opacity:0;animation:rise 1s .9s forwards}
+.pbot .t{font-family:var(--f1);font-size:50px;letter-spacing:.06em}.pbot .s{font-family:var(--f4);font-size:18px;letter-spacing:.35em;margin-top:10px;opacity:.9}
+.pcard{position:absolute;top:56px;left:36px;right:36px;padding:26px 24px 24px;background:rgba(255,251,240,.94);border:2px solid #c9a24b;border-radius:26px;box-shadow:0 14px 40px rgba(0,0,0,.35);text-align:center;color:#5a2236;opacity:0;animation:cardin 1s .5s cubic-bezier(.2,.8,.2,1) forwards}
+.pcard:before{content:"";position:absolute;inset:7px;border:1px solid rgba(201,162,75,.7);border-radius:20px;pointer-events:none}
+@keyframes cardin{from{opacity:0;transform:translateY(-40px) scale(.96)}to{opacity:1;transform:none}}
+.pcard h3{font-family:var(--f3);font-size:78px;font-weight:400;color:#8c1d40;line-height:1.05}
+.pcard .d{font-family:var(--f1);font-size:25px;margin-top:6px}.pcard .tm{font-family:var(--f4);font-size:17px;letter-spacing:.22em;color:#8a5a6a;margin-top:6px}
+.pcard .v{font-size:23px;color:#8a5a6a;margin-top:6px;font-style:italic}.pcard .dc{display:inline-block;margin-top:10px;border:1px dashed #c9a24b;border-radius:14px;padding:6px 16px;font-size:21px}
+.pcard .nm{font-family:var(--f3);font-size:84px;color:#8c1d40;line-height:1.02}.pcard .nm span{display:block;font-family:var(--f1);font-size:26px;letter-spacing:.2em;color:#c9a24b}
+.pcard .pp{font-size:21px;color:#8a5a6a;line-height:1.35}.pcard .eb{font-family:var(--f4);font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:#8a5a6a;margin-bottom:8px}
+
 </style></head>
 <body>
 <div id="stage"><div id="bg"></div><div id="art"></div><div id="petals"></div><div id="scenes"></div></div>
@@ -68,8 +90,9 @@ const $=s=>document.querySelector(s);
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 let DATA=null;
 function scene(cls,html){const d=document.createElement('div');d.className='scene '+cls;d.innerHTML=html;$('#scenes').appendChild(d);return d}
-async function play(el,ms){await sleep(50);el.classList.add('in');await sleep(ms);el.classList.remove('in');setTimeout(()=>el.remove(),1000)}
+async function play(el,ms){await sleep(50);const vv=el.querySelector('video');if(vv){try{await vv.play()}catch(e){}await sleep(150)}el.classList.add('in');await sleep(ms);el.classList.remove('in');setTimeout(()=>el.remove(),1000)}
 async function runVideo(){
+  if(DATA.vpack)return runPack();
   const d=DATA,T=getTemplate(d.theme),tr=trad(d);
   document.body.className=T.dark?'dark':'';applyTemplate(T);
   const tl=tileURL(T.sk,T.v['--gold']);
@@ -97,6 +120,28 @@ async function runVideo(){
   await play(scene('',`<div class="eyebrow">Venue</div><div class="mapc"><div class="pin">📍</div></div><div class="vn foil">${esc(d.venue)}</div><div class="ad">${esc(d.address)}</div>`),4200);
   // closing
   await play(scene('',`<div class="gan" style="width:210px">${tr.motif()}</div><div class="eyebrow" style="margin-top:20px">We await your gracious presence</div><div class="close foil">${esc(d.closing||`With love, ${d.groom.name} & ${d.bride.name}`)}</div>`),5200);
+  window.__done=true}
+
+const EVKEY=[[/haldi/i,'haldi'],[/mehe?ndi/i,'mehndi'],[/sangeet|dholki|cocktail/i,'sangeet'],[/engage|ring|sagai|roka|tilak/i,'engagement'],[/reception|walima/i,'reception']];
+const evkey=n=>(EVKEY.find(([r])=>r.test(n))||[0,'wedding'])[1];
+function pscene(img,html,alt){const d=document.createElement('div');d.className='pscene'+(alt?' alt':'');
+  let sp='';for(let i=0;i<22;i++)sp+=`<i style="left:${Math.random()*100}%;top:${Math.random()*100}%;font-size:${8+Math.random()*14|0}px;animation-delay:${(Math.random()*2.4).toFixed(1)}s">✦</i>`;
+  const isv=/\.(mp4|webm)$/i.test(img);
+  d.innerHTML=`${isv?`<video class="pimg pvid" src="${img}" autoplay muted loop playsinline style="animation:none;object-fit:cover;width:112%;height:112%;left:-6%;top:-6%;inset:auto"></video>`:`<div class="pimg" style="background-image:url('${img}')"></div>`}<div class="pvig"></div><div class="pspark">${sp}</div>${html}`;$('#scenes').appendChild(d);return d}
+async function runPack(){
+  const d=DATA,tr=trad(d),base=`/packs/${d.vpack}/`;
+  const P=await (await fetch(base+'pack.json')).json();const im=k=>base+((P.scenes&&(P.scenes[k]||P.scenes.wedding))||'wedding.jpg');
+  const wd=fmtDate(d.date,d.time);let alt=false;const A=()=>(alt=!alt);
+  const par=p=>[p.father&&('Mr. '+esc(p.father)),p.mother&&('Mrs. '+esc(p.mother))].filter(Boolean).join(' & ');
+  await sleep(600);
+  await play(pscene(im('opening'),`<div class="shlok">${tr.head}</div><div class="pbot"><div class="t">${tr.title}</div><div class="s">A WEDDING INVITATION</div></div>`,A()),5200);
+  const gp=par(d.groom),bp=par(d.bride);
+  await play(pscene(im('wedding'),`<div class="pcard"><div class="eb">Together with their families</div><div class="nm">${esc(d.groom.name)}<span>&amp;</span>${esc(d.bride.name)}</div>${gp?`<div class="pp">son of ${gp}</div>`:''}${bp?`<div class="pp">daughter of ${bp}</div>`:''}</div>`,A()),5600);
+  for(const f of d.functions.slice(0,5)){const m=(f.date||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    const ds=m?`${DOW[new Date(+m[1],+m[2]-1,+m[3]).getDay()]}, ${+m[3]} ${MON[+m[2]-1]} ${m[1]}`:esc(f.date||'');const tm=f.time?(/^\d{2}:\d{2}$/.test(f.time)?time12(f.time):esc(f.time)):'';
+    await play(pscene(im(evkey(f.name)),`<div class="pcard"><h3>${esc(f.name)}</h3><div class="d">${ds}</div>${tm?`<div class="tm">${tm}</div>`:''}<div class="v">${esc(f.place)}</div>${f.dress?`<div class="dc">Dress code: ${esc(f.dress)}</div>`:''}</div>`,A()),5200)}
+  await play(pscene(im('wedding'),`<div class="pcard"><div class="eb">The wedding</div><h3>${wd.d} ${wd.m}</h3><div class="d">${wd.dow}, ${wd.y} · ${time12(d.time)}</div><div class="v">${esc(d.venue)}</div><div class="v" style="font-size:20px">${esc(d.address)}</div></div>`,A()),5400);
+  await play(pscene(im('closing'),`<div class="pbot" style="bottom:130px"><div class="t" style="font-family:var(--f3);font-size:92px;line-height:1.1">${esc(d.closing||`With love, ${d.groom.name} & ${d.bride.name}`)}</div><div class="s">WE AWAIT YOUR GRACIOUS PRESENCE</div></div>`,A()),5600);
   window.__done=true}
 window.runVideo=runVideo;
 (async()=>{const id=location.pathname.split('/').pop();DATA=await (await fetch('/api/invites/'+id)).json();window.__ready=true})();

@@ -1,0 +1,118 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Admin · Shaadi Card</title>
+<style>
+:root{--m:#8c1d40;--g:#c9a24b;--bg:#faf5ef;--ink:#2b0f18;--mut:#7d6470;--ln:#e8dccd}
+*{box-sizing:border-box}body{margin:0;font:15px/1.45 system-ui,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+.hide{display:none!important}
+header{background:var(--ink);color:#fff;display:flex;align-items:center;gap:18px;padding:0 20px;height:56px;position:sticky;top:0;z-index:5}
+header b{font-size:18px;color:#ffd978}header nav{display:flex;gap:4px;flex:1;overflow:auto}
+header button.t{background:none;border:0;color:#d9c7cf;padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit;white-space:nowrap}
+header button.t.on{background:#ffffff1f;color:#fff}
+main{max-width:1180px;margin:0 auto;padding:22px 16px 80px}
+h2{margin:0 0 14px;font-size:22px}
+.btn{background:var(--m);color:#fff;border:0;border-radius:9px;padding:9px 16px;font:inherit;cursor:pointer}.btn.sm{padding:5px 10px;font-size:13px}.btn.ghost{background:#fff;color:var(--m);border:1px solid var(--m)}.btn.red{background:#b3261e}.btn:disabled{opacity:.5}
+.card{background:#fff;border:1px solid var(--ln);border-radius:14px;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}.stats .card b{font-size:26px;display:block;color:var(--m)}.stats .card span{color:var(--mut);font-size:13px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--ln);border-radius:12px;overflow:hidden}th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--ln);font-size:14px;vertical-align:middle}th{background:#f4ebdd;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut)}
+td img,td video{width:46px;height:80px;object-fit:cover;border-radius:6px;background:#eee;display:block}
+.pill{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;background:#eee}.pill.ok{background:#d9f2e2;color:#14673a}.pill.no{background:#fde0de;color:#9a1c14}.pill.wait{background:#fff0c9;color:#7a5a00}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.row .sp{flex:1}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 3px}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid #d8c9b6;border-radius:8px;font:inherit;background:#fff}textarea{min-height:80px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}
+.modal{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:30px 12px;z-index:20}.modal>div{background:#fff;border-radius:16px;max-width:760px;width:100%;padding:22px}
+.media{display:flex;gap:12px;align-items:center}.media .pv{width:70px;height:124px;border-radius:8px;object-fit:cover;background:#eee;border:1px solid var(--ln)}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px}.slot{border:1px solid var(--ln);border-radius:12px;padding:8px;text-align:center;background:#fff}.slot .pv{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:8px;background:#f0e8dc;display:block}.slot b{display:block;text-transform:capitalize;margin:6px 0 4px}
+#login{max-width:360px;margin:12vh auto;text-align:center}.err{color:#b3261e;margin-top:8px;min-height:1.4em}
+.hint{font-size:13px;color:var(--mut)}
+@media(max-width:700px){.grid2,.grid3{grid-template-columns:1fr}td:nth-child(n+5),th:nth-child(n+5){display:none}}
+</style></head><body>
+<div id="login" class="card hide"><h2>Shaadi Card Admin</h2><input id="pw" type="password" placeholder="Admin password" autofocus><div class="err" id="lerr"></div><button class="btn" id="lgo" style="width:100%">Sign in</button>
+<p class="hint">Password is the <code>ADMIN_PASSWORD</code> setting, or the one saved in <code>data/admin_password.txt</code> on the server.</p></div>
+<div id="app" class="hide">
+<header><b>Shaadi Card</b><nav id="nav"></nav><a href="/" target="_blank" style="color:#ffd978">View site ↗</a><button class="t" id="out">Logout</button></header>
+<main id="main"></main></div>
+<div id="modal" class="modal hide"><div id="mbody"></div></div>
+<script src="/templates.js"></script>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function api(p,o={}){const r=await fetch('/api/admin/'+p,{credentials:'same-origin',...o,headers:o.body&&!(o.body instanceof FormData)?{'Content-Type':'application/json',...o.headers}:o.headers});
+ if(r.status===401){showLogin();throw new Error('auth')}const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.detail||r.statusText);return j}
+const J=(m,b)=>({method:m,body:JSON.stringify(b)});
+const isVid=u=>/\.(mp4|webm)$/i.test(u||'');
+const media=(u,cls='pv')=>!u?`<div class="${cls}"></div>`:isVid(u)?`<video class="${cls}" src="${esc(u)}" muted loop playsinline onmouseenter="this.play()" onmouseleave="this.pause()"></video>`:`<img class="${cls}" src="${esc(u)}">`;
+const TABS=[['dash','Dashboard'],['items','Templates'],['packs','Video packs'],['orders','Orders'],['enq','Enquiries'],['set','Settings']];
+let tab='dash',META={};
+function showLogin(){$('#app').classList.add('hide');$('#login').classList.remove('hide')}
+$('#lgo').onclick=async()=>{try{await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:$('#pw').value})}).then(async r=>{if(!r.ok)throw new Error((await r.json()).detail)});$('#login').classList.add('hide');start()}catch(e){$('#lerr').textContent=e.message}};
+$('#pw').onkeydown=e=>{if(e.key==='Enter')$('#lgo').click()};
+$('#out').onclick=async()=>{await fetch('/api/admin/logout',{method:'POST'});location.reload()};
+function nav(){$('#nav').innerHTML=TABS.map(([k,l])=>`<button class="t ${k===tab?'on':''}" data-k="${k}">${l}</button>`).join('');document.querySelectorAll('#nav .t').forEach(b=>b.onclick=()=>{tab=b.dataset.k;nav();render()})}
+async function start(){try{await api('me')}catch{return}$('#app').classList.remove('hide');nav();render()}
+function render(){({dash,items,packs,orders,enq,set})[tab]().catch(e=>{if(e.message!=='auth')$('#main').innerHTML='<p class="err">'+esc(e.message)+'</p>'})}
+const money=n=>'₹'+Number(n||0).toLocaleString('en-IN');
+const when=t=>new Date(t*1000).toLocaleString('en-IN',{dateStyle:'medium',timeStyle:'short'});
+function modal(html){$('#mbody').innerHTML=html;$('#modal').classList.remove('hide')}
+function closeModal(){$('#modal').classList.add('hide')}$('#modal').onclick=e=>{if(e.target.id==='modal')closeModal()};
+
+async function dash(){const s=await api('stats');
+ $('#main').innerHTML=`<h2>Dashboard</h2><div class="stats">${[['Revenue',money(s.revenue)],['Paid orders',s.orders],['Awaiting payment',s.pending],['New enquiries',s.enquiries],['Templates',s.items],['Invitations made',s.invites]].map(([l,v])=>`<div class="card"><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+ <div class="card"><b>Quick start</b><ol><li><b>Video packs</b>: create a pack and upload the 8 scene images or Kling videos (opening, wedding, haldi, mehndi, sangeet, engagement, reception, closing).</li><li><b>Templates</b>: add a template, pick the pack, upload the thumbnail and a sample preview video, and set the price.</li><li>Customers pick it on the home page, fill their details, pay and download their video.</li><li><b>Orders</b>: if you use UPI instead of Razorpay, mark orders as paid after you see the money.</li></ol></div>`}
+
+async function items(){const [rows,pk]=await Promise.all([api('items'),api('packs')]);window._items=rows;window._packs=pk.packs;
+ $('#main').innerHTML=`<div class="row"><h2 style="margin:0">Templates</h2><span class="sp"></span><button class="btn" onclick="editItem()">+ New template</button></div>
+ <table><tr><th></th><th>Title</th><th>Type</th><th>Price</th><th>Pack</th><th>Status</th><th></th></tr>${rows.map(r=>`<tr><td>${media(r.thumb,'x')}</td><td><b>${esc(r.title)}</b><div class="hint">${esc(r.slug)} · ${esc(r.tradition)} · ${esc(r.languages.join(', '))}</div></td><td>${esc(r.kind)}</td>
+ <td>${r.kind==='card'?'Enquiry':money(r.price)+(r.mrp>r.price?` <s class="hint">${money(r.mrp)}</s>`:'')}</td><td>${esc(r.vpack||'—')}</td><td><span class="pill ${r.active?'ok':'no'}">${r.active?'Live':'Hidden'}</span> <span class="hint">${r.sales} sold</span></td>
+ <td style="white-space:nowrap"><button class="btn sm ghost" onclick="editItem(${r.id})">Edit</button> <button class="btn sm red" onclick="delItem(${r.id})">✕</button></td></tr>`).join('')}</table>`}
+async function delItem(id){if(confirm('Delete this template permanently?')){await api('items/'+id,{method:'DELETE'});items()}}
+function editItem(id){const r=(window._items||[]).find(x=>x.id===id)||{kind:'video',tradition:'hindu',languages:[],price:549,mrp:749,theme:'t1',active:1,sort:100,images:[]};
+ const o=(arr,v)=>arr.map(([a,b])=>`<option value="${a}" ${a===v?'selected':''}>${b}</option>`).join('');
+ modal(`<h2>${id?'Edit':'New'} template</h2><form id="f">
+ <div class="grid2"><div><label>Title</label><input name="title" value="${esc(r.title)}" required></div><div><label>URL slug ${id?'(fixed)':''}</label><input name="slug" value="${esc(r.slug)}" ${id?'disabled':''} placeholder="auto from title"></div></div>
+ <div class="grid3"><div><label>Type</label><select name="kind">${o([['video','Video invitation'],['website','Wedding website'],['card','Luxury card (enquiry)']],r.kind)}</select></div>
+ <div><label>Tradition</label><select name="tradition">${o([['hindu','Hindu'],['muslim','Muslim'],['sikh','Sikh'],['christian','Christian']],r.tradition)}</select></div>
+ <div><label>Style</label><input name="style" value="${esc(r.style)}" placeholder="Royal, Modern…"></div></div>
+ <div class="grid3"><div><label>Price (₹)</label><input name="price" type="number" min="0" value="${r.price}"></div><div><label>Strike-out price (₹)</label><input name="mrp" type="number" min="0" value="${r.mrp}"></div><div><label>Badge</label><input name="badge" value="${esc(r.badge)}" placeholder="Best Seller"></div></div>
+ <div class="grid2"><div><label>Languages (comma separated)</label><input name="languages" value="${esc((r.languages||[]).join(', '))}" placeholder="English, Hindi"></div><div><label>Sort order (lower = first)</label><input name="sort" type="number" value="${r.sort}"></div></div>
+ <div class="grid2"><div><label>Video pack (scenes used for the customer's video)</label><select name="vpack"><option value="">None (built-in style video)</option>${(window._packs||[]).map(p=>`<option value="${p.id}" ${p.id===r.vpack?'selected':''}>${esc(p.name)} (${p.id})</option>`).join('')}</select></div>
+ <div><label>Invite page design (100 designs)</label><select name="theme">${TEMPLATES.map(t=>`<option value="${t.id}" ${t.id===r.theme?'selected':''}>${esc(t.name)}</option>`).join('')}</select></div></div>
+ <label>Thumbnail (vertical image shown on cards)</label><div class="media" id="m-thumb">${media(r.thumb)}<div><input type="file" id="u-thumb" accept="image/*"><div class="hint">Or paste a path:</div><input name="thumb" value="${esc(r.thumb)}"></div></div>
+ <label>Sample preview video (plays on hover; made with Kling or any tool)</label><div class="media" id="m-prev">${media(r.preview_video)}<div><input type="file" id="u-prev" accept="video/mp4,video/webm"><input name="preview_video" value="${esc(r.preview_video)}" placeholder="/uploads/media/…"></div></div>
+ <label>Description</label><textarea name="description">${esc(r.description)}</textarea>
+ <div class="grid3" id="cardf"><div><label>Min. order qty (cards)</label><input name="moq" type="number" value="${r.moq||0}"></div><div><label>Material (cards)</label><input name="material" value="${esc(r.material)}"></div><div><label>Visible on site</label><select name="active"><option value="1" ${r.active?'selected':''}>Live</option><option value="0" ${r.active?'':'selected'}>Hidden</option></select></div></div>
+ <div class="err" id="ferr"></div><div class="row" style="margin-top:14px"><button class="btn">Save</button><button type="button" class="btn ghost" onclick="closeModal()">Cancel</button></div></form>`);
+ const up=async(inp,field,box)=>{const f=inp.files[0];if(!f)return;const fd=new FormData();fd.append('file',f);try{const j=await api('upload',{method:'POST',body:fd});$('#f')[field].value=j.url;$(box).firstElementChild.outerHTML=media(j.url)}catch(e){$('#ferr').textContent=e.message}};
+ $('#u-thumb').onchange=e=>up(e.target,'thumb','#m-thumb');$('#u-prev').onchange=e=>up(e.target,'preview_video','#m-prev');
+ $('#f').onsubmit=async e=>{e.preventDefault();const fd=Object.fromEntries(new FormData(e.target));fd.languages=fd.languages;fd.images=r.images||[];fd.active=fd.active==='1';
+  try{await api(id?'items/'+id:'items',J(id?'PUT':'POST',fd));closeModal();items()}catch(er){$('#ferr').textContent=er.message}}}
+
+async function packs(){const pk=await api('packs');
+ $('#main').innerHTML=`<div class="row"><h2 style="margin:0">Video packs</h2><span class="sp"></span><button class="btn" onclick="newPack()">+ New pack</button></div>
+ <p class="hint">A pack is the set of scene backgrounds for one template. Upload a still image (it gets a slow zoom) or an animated MP4 from Kling/Runway (it plays as the background). Customer names, dates and events are added on top automatically. Vertical 9:16 works best. Missing scenes fall back to the "wedding" scene.</p>
+ ${pk.packs.map(p=>`<div class="card" style="margin-bottom:16px"><div class="row"><b style="font-size:17px">${esc(p.name)}</b><span class="hint">${esc(p.id)}</span><span class="sp"></span><button class="btn sm red" onclick="delPack('${p.id}')">Delete pack</button></div>
+ <div class="slots">${pk.keys.map(k=>`<div class="slot">${media(p.scenes[k]?`/packs/${p.id}/${p.scenes[k]}?v=${Date.now()}`:'')}<b>${k}</b><input type="file" accept="image/*,video/mp4,video/webm" onchange="upScene('${p.id}','${k}',this)">${p.scenes[k]?`<button class="btn sm ghost" style="margin-top:4px" onclick="delScene('${p.id}','${k}')">Remove</button>`:''}</div>`).join('')}</div></div>`).join('')||'<p>No packs yet.</p>'}`}
+async function newPack(){const name=prompt('Pack name, e.g. Royal Palace Ganesha');if(!name)return;const id=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40);try{await api('packs',J('POST',{id,name}));packs()}catch(e){alert(e.message)}}
+async function upScene(pid,key,inp){const f=inp.files[0];if(!f)return;inp.disabled=true;const fd=new FormData();fd.append('key',key);fd.append('file',f);try{await api(`packs/${pid}/scene`,{method:'POST',body:fd});packs()}catch(e){alert(e.message);inp.disabled=false}}
+async function delScene(pid,k){if(confirm('Remove this scene?')){await api(`packs/${pid}/scene/${k}`,{method:'DELETE'});packs()}}
+async function delPack(id){if(!confirm('Delete the whole pack and its files?'))return;try{await api('packs/'+id,{method:'DELETE'});packs()}catch(e){alert(e.message)}}
+
+async function orders(){const rows=await api('orders');
+ $('#main').innerHTML=`<h2>Orders</h2><table><tr><th>#</th><th>Customer</th><th>Template</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr>${rows.map(o=>`<tr><td>${o.id}</td><td>${esc(o.name)}<div class="hint"><a href="https://wa.me/${esc(String(o.phone).replace(/\D/g,''))}" target="_blank">${esc(o.phone)}</a></div></td><td>${esc(o.title)}<div class="hint"><a href="/i/${esc(o.invite_id)}" target="_blank">${esc(o.invite_id)}</a></div></td><td>${money(o.amount)}</td>
+ <td><span class="pill ${o.status==='paid'?'ok':o.status==='created'?'wait':'no'}">${o.status}</span></td><td class="hint">${when(o.created_at)}</td><td style="white-space:nowrap">${o.status!=='paid'?`<button class="btn sm" onclick="ostat(${o.id},'paid')">Mark paid</button>`:`<button class="btn sm ghost" onclick="ostat(${o.id},'refunded')">Refund</button>`}</td></tr>`).join('')||'<tr><td colspan=7>No orders yet.</td></tr>'}</table>`}
+async function ostat(id,s){await api(`orders/${id}/status`,J('POST',{status:s}));orders()}
+async function enq(){const rows=await api('enquiries');
+ $('#main').innerHTML=`<h2>Luxury card enquiries</h2><table><tr><th>Customer</th><th>Item</th><th>City</th><th>Qty</th><th>Note</th><th>Status</th></tr>${rows.map(e=>`<tr><td>${esc(e.name)}<div class="hint"><a href="https://wa.me/${esc(String(e.phone).replace(/\D/g,''))}" target="_blank">${esc(e.phone)}</a> · ${when(e.created_at)}</div></td><td>${esc(e.title||'')}</td><td>${esc(e.city)}</td><td>${esc(e.qty)}</td><td>${esc(e.note)}</td>
+ <td><select onchange="estat(${e.id},this.value)">${['new','contacted','done'].map(s=>`<option ${s===e.status?'selected':''}>${s}</option>`).join('')}</select></td></tr>`).join('')||'<tr><td colspan=6>No enquiries yet.</td></tr>'}</table>`}
+async function estat(id,s){await api(`enquiries/${id}/status`,J('POST',{status:s}))}
+async function set(){const s=await api('settings');
+ $('#main').innerHTML=`<h2>Settings</h2><div class="card" style="max-width:640px"><form id="sf">
+ <label>Site name</label><input name="site_name" value="${esc(s.site_name)}">
+ <label>Top banner text</label><input name="announcement" value="${esc(s.announcement)}">
+ <label>Your WhatsApp number (with country code, e.g. 919876543210) for orders and enquiries</label><input name="whatsapp" value="${esc(s.whatsapp)}">
+ <label>UPI ID for manual payments (e.g. name@okaxis)</label><input name="upi_id" value="${esc(s.upi_id)}">
+ <label>Support email</label><input name="support_email" value="${esc(s.support_email)}">
+ <p class="hint">Online payments: Razorpay is <b>${s.razorpay_configured?'configured ✓':'not configured'}</b>. To turn it on, set <code>RAZORPAY_KEY_ID</code> and <code>RAZORPAY_KEY_SECRET</code> in the server .env file and restart. Until then, customers pay by UPI and you mark orders as paid.</p>
+ <div class="row" style="margin-top:12px"><button class="btn">Save settings</button><span id="ss" class="hint"></span></div></form></div>`;
+ $('#sf').onsubmit=async e=>{e.preventDefault();await api('settings',J('PUT',Object.fromEntries(new FormData(e.target))));$('#ss').textContent='Saved ✓'}}
+start();
+</script></body></html>

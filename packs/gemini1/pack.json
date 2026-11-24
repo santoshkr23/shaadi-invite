@@ -1,0 +1,13 @@
+{
+ "name": "Bollywood 3D Cartoon",
+ "scenes": {
+  "opening": "opening.jpg",
+  "wedding": "wedding.jpg",
+  "haldi": "haldi.jpg",
+  "mehndi": "mehndi.jpg",
+  "sangeet": "sangeet.jpg",
+  "engagement": "reception.jpg",
+  "reception": "reception.jpg",
+  "closing": "closing.jpg"
+ }
+}
