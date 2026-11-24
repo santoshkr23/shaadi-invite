@@ -2,6 +2,9 @@
 
 KVM 2 (2 vCPU, 8 GB RAM) is enough for this site. Video rendering takes about 1–2 minutes per video and runs one at a time (`VIDEO_WORKERS=1`).
 
+## 0. Test first on the IP address (no domain, no HTTPS)
+Run `curl -fsSL https://raw.githubusercontent.com/santoshkr23/shaadi-invite/main/deploy/setup.sh | bash -s -- YOUR.VPS.IP` and open `http://YOUR.VPS.IP` and `http://YOUR.VPS.IP/admin`. Everything works except HTTPS. Later re-run the same command with your domain to switch on HTTPS.
+
 ## 1. Order of work
 1. In hPanel, create the VPS with the **Ubuntu 24.04 (plain OS)** template. Note its IP.
 2. At your domain registrar (or Hostinger DNS) add an **A record** `@` → VPS IP and `www` → VPS IP. Wait until `ping yourdomain.com` shows the VPS IP.
