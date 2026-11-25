@@ -4,7 +4,7 @@ KVM 2 (2 vCPU, 8 GB RAM) is enough for this site. Video rendering takes about 1â
 
 ## 0. Server that already runs other websites
 The setup script is safe next to other sites: it does not touch their nginx configs, firewall policy or ports. The app listens privately on `127.0.0.1:8010` (first free port from 8010 up) and installs its own nginx site `shaadi`.
-- **Test on the IP** (no domain, no HTTPS): `... setup.sh | bash -s -- YOUR.VPS.IP` then open `http://YOUR.VPS.IP:8080` and `/admin`. If it does not load, open TCP 8080 in the Hostinger firewall. Use `TEST_PORT=9090` to change the port.
+- **Test on the IP** (no domain, no HTTPS): `... setup.sh | bash -s -- YOUR.VPS.IP` then open `http://YOUR.VPS.IP:8090` and `/admin`. If it does not load, open the test port printed by the script (8090 or the next free one) in the Hostinger firewall. Use `TEST_PORT=9090` to change the port.
 - **With a domain**: add the A record, run the script with the domain. It adds only a `server_name yourdomain.com` block next to your other sites and gets its own HTTPS certificate.
 - **If your other sites use Caddy, Apache or Docker/Traefik on port 80**, the script detects it, skips nginx, and leaves the app on `127.0.0.1:PORT`. Add a route in that server: Caddy: `yourdomain.com { request_body { max_size 220MB } reverse_proxy 127.0.0.1:8010 }`.
 - Nothing is overwritten: the app lives only in `/opt/shaadi`, the service is `shaadi`, the nginx site is `shaadi`.

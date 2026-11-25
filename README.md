@@ -15,7 +15,7 @@ The admin password is printed on first start and saved in `data/admin_password.t
 Requirements: Python 3.10+, Google Chrome, ffmpeg on PATH.
 
 ## Deploy on Hostinger KVM 2 (Ubuntu 22.04/24.04)
-Safe next to other sites on the same server. Test on the bare IP first (opens on port 8080): `curl -fsSL https://raw.githubusercontent.com/santoshkr23/shaadi-invite/main/deploy/setup.sh | bash -s -- YOUR.VPS.IP`
+Safe next to other sites on the same server. Test on the bare IP first (opens on port 8090 or the next free one): `curl -fsSL https://raw.githubusercontent.com/santoshkr23/shaadi-invite/main/deploy/setup.sh | bash -s -- YOUR.VPS.IP`
 
 With a domain:
 1. Point your domain's **A record** (and `www`) to the VPS IP.

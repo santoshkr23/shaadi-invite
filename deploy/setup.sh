@@ -6,14 +6,21 @@
 set -euo pipefail
 DOMAIN="${1:-}"; [ -n "$DOMAIN" ] || { echo "Usage: setup.sh yourdomain.com   (or the server IP for a test without HTTPS)"; exit 1; }
 if [[ "$DOMAIN" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then IPMODE=1; SCHEME=http; else IPMODE=0; SCHEME=https; fi
-APP=/opt/shaadi; REPO=https://github.com/santoshkr23/shaadi-invite.git; TEST_PORT="${TEST_PORT:-8080}"
+APP=/opt/shaadi; REPO=https://github.com/santoshkr23/shaadi-invite.git; TEST_PORT="${TEST_PORT:-8090}"
 used() { ss -ltnH "sport = :$1" 2>/dev/null | grep -q .; }
 
 echo "== Already listening on this server =="; ss -ltnH | awk '{print $4}' | sed 's/.*://' | sort -un | tr '\n' ' '; echo
 
 # Does another web server (Caddy, Apache, Traefik/Docker...) own port 80? Then do not install or start nginx.
 if used 80 && ! pgrep -x nginx >/dev/null; then NGINX=0; echo "!! Port 80 belongs to another web server (not nginx), so nginx will not be installed."; else NGINX=1; fi
-if [ "$IPMODE" = 1 ] && [ "$NGINX" = 1 ] && used "$TEST_PORT" && ! grep -rqs "listen $TEST_PORT" /etc/nginx/sites-enabled; then echo "Port $TEST_PORT is in use; run with TEST_PORT=<free port>."; exit 1; fi
+# IP test mode: use a public port nothing else listens on (re-runs may keep the port our own site already uses)
+if [ "$IPMODE" = 1 ]; then
+  OWN=$(grep -oP 'listen \K[0-9]+' /etc/nginx/sites-available/shaadi 2>/dev/null | head -1 || true)
+  if [ -n "$OWN" ] && [ "$OWN" = "$TEST_PORT" ]; then :; else
+    while used "$TEST_PORT" || grep -rqsE "listen +(\[::\]:)?$TEST_PORT\b" /etc/nginx/sites-enabled /etc/nginx/conf.d; do TEST_PORT=$((TEST_PORT+1)); done
+  fi
+  echo "Test port: $TEST_PORT"
+fi
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
